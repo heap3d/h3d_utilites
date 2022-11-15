@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package version="801">
+	<kit name="h3d_utilites" restart="YES">
+		<source target="h3d_utilites/index.CFG">index.CFG</source>
+		<source target="h3d_utilites/scripts/h3d_debug.py">scripts/h3d_debug.py</source>
+		<source target="h3d_utilites/scripts/h3d_utils.py">scripts/h3d_utils.py</source>
+	</kit>
+	<message button="Help">h3d_utilites Kit installation complete.</message>
+</package>
