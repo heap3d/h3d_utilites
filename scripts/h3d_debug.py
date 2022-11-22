@@ -73,6 +73,9 @@ class H3dDebug:
         if not file:
             return
         scene_path = modo.Scene().filename
+        if not scene_path:
+            self.log_path = None
+            return
         scene_dir = os.path.dirname(scene_path)
         log_path = os.path.join(scene_dir, file)
         self.log_path = log_path
