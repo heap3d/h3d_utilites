@@ -14,7 +14,7 @@ import modo
 
 
 class H3dDebug:
-    def __init__(self, enable=True, file=None, indent=0, indent_str='    '):
+    def __init__(self, enable=False, file=None, indent=0, indent_str='    '):
         self.enable = enable
         self.initial_indent = int(indent)
         self.indent = self.initial_indent
@@ -113,6 +113,3 @@ class H3dDebug:
             # reinitialize log file
             pass
         self.indent = self.initial_indent
-
-
-h3dd = H3dDebug(file=modo.Scene().name.rsplit('.')[0] + '.txt')
