@@ -106,14 +106,10 @@ class H3dUtils:
 
     @staticmethod
     def type_int_to_str(type_int):
-        if not isinstance(type_int, int):
-            return type_int
         return lx.service.Scene().ItemTypeName(type_int)
 
     @staticmethod
     def type_str_to_int(type_str):
-        if not isinstance(type_str, str):
-            return type_str
         return lx.service.Scene().ItemTypeLookup(type_str)
 
 
@@ -212,14 +208,10 @@ def replace_file_ext(name='log', ext='.txt'):
 def itype_str(type_int):
     """convert int modo item type to str type.
     example: c.MESH_TYPE to 'mesh' """
-    if not isinstance(type_int, int):
-        return type_int
     return lx.service.Scene().ItemTypeName(type_int)
 
 
 def itype_int(type_str):
     """convert str modo item type to int type.
     example: 'mesh' to c.MESH_TYPE"""
-    if not isinstance(type_str, str):
-        return type_str
     return lx.service.Scene().ItemTypeLookup(type_str)
