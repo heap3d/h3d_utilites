@@ -205,7 +205,7 @@ def get_source_of_instance(item):
 
 
 def replace_file_ext(name='log', ext='.txt'):
-    basename = name.rsplit('.', maxsplit=1)[0]
+    basename = name.rsplit('.', 1)[0]
     return '{}{}'.format(basename, ext)
 
 
