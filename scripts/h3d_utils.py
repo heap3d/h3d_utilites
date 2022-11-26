@@ -215,3 +215,21 @@ def itype_int(type_str):
     """convert str modo item type to int type.
     example: 'mesh' to c.MESH_TYPE"""
     return lx.service.Scene().ItemTypeLookup(type_str)
+
+
+def item_rotate(item, rads):
+    if not item:
+        print('item_rotate(): not item.')
+        return
+    if not rads:
+        print('item_rotate(): not rads.')
+        return
+    if len(rads) != 3:
+        print('item_rotate(): len(rads) != 3')
+        return
+    # get current rotation
+    rotation = mmu.Vector3(item.rotation.get())
+    # update item rotation
+    rotation_upd = (rotation.x + rads.x, rotation.y + rads.y, rotation.z + rads.z)
+    # set item rotation
+    item.rotation.set(rotation_upd)
