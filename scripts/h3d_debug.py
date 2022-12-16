@@ -63,24 +63,28 @@ class H3dDebug:
         if not items:
             self.print_debug(items, indent=indent + 1)
             return
+        
         for i in items:
             if 'modo.item.' in str(type(i)):
-                self.print_debug('<{}>'.format(i.name), indent=indent + 1)
+                self.print_debug('<{}> : <{}>'.format(i.name, i.type), indent=indent + 1)
             else:
                 self.print_debug('<{}>'.format(i), indent=indent + 1)
 
     def file_init(self, file):
         if not file:
             return
+        
         scene_path = modo.Scene().filename
         if not scene_path:
             self.log_path = None
             return
+        
         scene_dir = os.path.dirname(scene_path)
         log_path = os.path.join(scene_dir, file)
         self.log_path = log_path
         if not self.enable:
             return
+        
         self.log_reset()
 
     def print_fn_in(self):
