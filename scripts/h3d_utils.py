@@ -147,3 +147,15 @@ def safe_type(item):
         return item.type
     if item.type == '':
         return 'group'
+
+
+def remove_if_exist(item, children):
+    if not item:
+        return False
+    try:
+        modo.Scene().item(item.id)
+        modo.Scene().removeItems(item, children)
+    except LookupError:
+        return False
+
+    return True
