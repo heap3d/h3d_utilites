@@ -4,6 +4,7 @@
 		<source target="h3d_utilites/index.CFG">index.CFG</source>
 		<source target="h3d_utilites/scripts/h3d_debug.py">scripts/h3d_debug.py</source>
 		<source target="h3d_utilites/scripts/h3d_utils.py">scripts/h3d_utils.py</source>
+		<source target="h3d_utilites/scripts/h3d_exceptions.py">scripts/h3d_exceptions.py</source>
 	</kit>
 	<message button="Help">h3d_utilites Kit installation complete.</message>
 </package>
