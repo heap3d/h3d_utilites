@@ -11,6 +11,7 @@ import datetime
 import inspect
 import os.path
 import modo
+from h3d_exceptions import H3dExitException
 import h3d_utils as h3du
 
 
@@ -54,7 +55,7 @@ class H3dDebug:
         if not self.enable:
             return
         self.print_debug(message)
-        exit()
+        raise H3dExitException(message)
 
     def get_name(self, item):
         if not self.enable:
