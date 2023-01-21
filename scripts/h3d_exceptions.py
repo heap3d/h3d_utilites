@@ -4,4 +4,4 @@ class H3dExitException(Exception):
     """
     def __init__(self, message='Debug exit.'):
         self.message = message
-        super().__init__(self.message)
+        Exception().__init__(message)
