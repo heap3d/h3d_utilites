@@ -52,8 +52,6 @@ class H3dDebug:
         print(message)
 
     def exit(self, message="debug exit"):
-        if not self.enable:
-            return
         self.print_debug(message)
         raise H3dExitException(message)
 
