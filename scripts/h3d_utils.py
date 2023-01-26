@@ -159,3 +159,12 @@ def remove_if_exist(item, children):
         return False
 
     return True
+
+
+def is_material_ptyp(ptyp):
+    if ptyp == 'Material':
+        return True
+    if ptyp == '':
+        return True
+
+    return False
