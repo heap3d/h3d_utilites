@@ -102,7 +102,11 @@ def get_source_of_instance(item):
 
 
 def replace_file_ext(name="log", ext=".txt"):
-    basename = name.rsplit(".", 1)[0]
+    try:
+        basename = name.rsplit(".", 1)[0]
+    except AttributeError:
+        basename = name
+
     return "{}{}".format(basename, ext)
 
 
