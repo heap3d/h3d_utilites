@@ -10,6 +10,7 @@
 import lx
 import modo
 import modo.mathutils as mmu
+from typing import Union
 
 
 def get_user_value(name):
@@ -172,3 +173,13 @@ def is_material_ptyp(ptyp):
         return True
 
     return False
+
+
+def get_directory(title: Union[str, None], path: Union[str, None] = None) -> Union[str, None]:
+    if not title:
+        title = "Choose Directory"
+
+    return modo.dialogs.dirBrowse(
+        title=title,
+        path=path
+    )
