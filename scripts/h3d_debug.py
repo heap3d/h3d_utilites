@@ -17,13 +17,16 @@ import h3d_utilites.scripts.h3d_utils as h3du
 
 
 class H3dDebug:
-    def __init__(self, enable=False, file=None, indent=0, indent_str=" " * 4):
+    def __init__(self, enable=False, file=None, fullpath=None, indent=0, indent_str=" " * 4):
         self.enable = enable
         self.initial_indent = int(indent)
         self.indent = self.initial_indent
         self.indent_str = indent_str
         self.log_path = ""
-        self.file_init(file)
+        if self.enable:
+            self.file_init(shortname=file, fullname=fullpath)
+        print(f"log enabled: {self.enable}")
+        print(f"log path: {self.log_path}")
 
     def print_debug(self, message, indent=0):
         if not self.enable:
@@ -73,7 +76,9 @@ class H3dDebug:
         if not self.enable:
             return
         if message:
-            self.print_debug(message, indent=indent)
+            self.print_debug(message + f" ({len(items)})", indent=indent)
+        else:
+            self.print_debug(f"{len(items)} items:", indent=indent)
         if not items:
             self.print_debug(items, indent=indent + 1)
             return
@@ -86,20 +91,19 @@ class H3dDebug:
             else:
                 self.print_debug("<{}>".format(i), indent=indent + 1)
 
-    def file_init(self, file):
-        if not file:
+    def file_init(self, shortname, fullname):
+        if not shortname and not fullname:
             return
 
-        scene_path = modo.Scene().filename
-        if not scene_path:
-            self.log_path = None
-            return
+        self.log_path = fullname
 
-        scene_dir = os.path.dirname(scene_path)
-        log_path = os.path.join(scene_dir, file)
-        self.log_path = log_path
-        if not self.enable:
-            return
+        if not fullname:
+            scene_path = modo.Scene().filename
+            if not scene_path:
+                return
+
+            scene_dir = os.path.dirname(scene_path)
+            self.log_path = os.path.join(scene_dir, shortname)
 
         self.log_reset()
 
