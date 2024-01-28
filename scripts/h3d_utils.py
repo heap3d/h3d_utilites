@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # ================================
-# (C)2022 Dmytro Holub
+# (C)2022-2024 Dmytro Holub
 # heap3d@gmail.com
 # --------------------------------
 # modo python
@@ -22,20 +22,31 @@ def set_user_value(name, value):
     lx.eval("user.value {} {{{}}}".format(name, value))
 
 
-def parent_items_to(items, parent):
+def parent_items_to(items, parent, index=0):
     # clear selection
     modo.Scene().deselect()
     # select items
     for item in items:
         item.select()
+
+    if not parent:
+        lx.eval('item.parent parent:{} inPlace:1')
+        return
+
     # select parent item
     parent.select()
     # parent items to parent item
-    lx.eval("item.parent inPlace:1")
+    lx.eval(f'item.parent position:{index} inPlace:1')
 
 
 def set_mesh_debug_info(mesh, info_str, debug_mode=False):
-    """saving info_str to mesh description tag"""
+    """saving info_str to mesh description tag
+
+    Args:
+        mesh (Item): mesh item to store a tag
+        info_str (str): tag string
+        debug_mode (bool, optional): set tag if debug_mode enabled. Defaults to False.
+    """
     if not mesh:
         return
     if debug_mode:
@@ -45,12 +56,48 @@ def set_mesh_debug_info(mesh, info_str, debug_mode=False):
 
 
 def get_mesh_debug_info(mesh):
-    """read string from mesh description tag"""
+    """read string from mesh description tag
+
+    Args:
+        mesh (_type_): mesh to get tag string
+
+    Returns:
+        str: tag string
+    """
     if not mesh:
         return None
 
     mesh.select(replace=True)
     return lx.eval("item.tag string DESC ?")
+
+
+def set_description_tag(item: modo.Item, text: str) -> None:
+    """set description tag for specified item
+
+    Args:
+        item (modo.Item): item for tag addition
+        text (str): text for decription tag
+    """
+    item.select(replace=True)
+    lx.eval("item.tagAdd DESC")
+    lx.eval('item.tag string DESC "{}"'.format(text))
+
+
+def get_description_tag(item: modo.Item) -> str:
+    """get description tag for specified item
+
+    Args:
+        item (modo.Item): item to get tag
+
+    Returns:
+        str: tag text
+    """
+    item.select(replace=True)
+    description_tag = lx.eval("item.tag string DESC ?")
+    if not description_tag:
+        return ''
+
+    return description_tag
 
 
 def get_full_mesh_area(mesh):

@@ -1,3 +1,11 @@
+#!/usr/bin/python
+# ================================
+# (C)2022-2023 Dmytro Holub
+# heap3d@gmail.com
+# --------------------------------
+# modo python
+# EMAG
+# h3d exeptions
 class H3dExitException(Exception):
     """
     Raises to debug exit
