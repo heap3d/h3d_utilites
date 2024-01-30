@@ -10,10 +10,10 @@
 import lx
 import modo
 import modo.mathutils as mmu
-from typing import Union
+from typing import Union, Any
 
 
-def get_user_value(name):
+def get_user_value(name: str) -> Any:
     value = lx.eval("user.value {} ?".format(name))
     return value
 
