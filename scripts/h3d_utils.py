@@ -158,19 +158,33 @@ def replace_file_ext(name="log", ext=".txt"):
     return "{}{}".format(basename, ext)
 
 
-def itype_str(type_int):
+def itype_str(type_int: Union[int, None]) -> str:
     """convert int modo item type to str type.
     example: c.MESH_TYPE to 'mesh'"""
+    if type_int is None:
+        raise TypeError
+
     if isinstance(type_int, str):
-        return type_int
+        return str(type_int)
 
-    return lx.service.Scene().ItemTypeName(type_int)
+    str_type = lx.service.Scene().ItemTypeName(type_int)
+    if str_type is None:
+        raise TypeError
+
+    return str_type
 
 
-def itype_int(type_str):
+def itype_int(type_str: Union[str, None]) -> int:
     """convert str modo item type to int type.
     example: 'mesh' to c.MESH_TYPE"""
-    return lx.service.Scene().ItemTypeLookup(type_str)
+    if type_str is None:
+        raise TypeError
+
+    int_type = lx.service.Scene().ItemTypeLookup(type_str)
+    if int_type is None:
+        raise TypeError
+
+    return int_type
 
 
 def item_rotate(item, rads):
