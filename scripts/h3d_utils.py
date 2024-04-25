@@ -14,12 +14,58 @@ from typing import Union, Any
 
 
 def get_user_value(name: str) -> Any:
+    """gets user value by name
+
+    Args:
+        name (str): user value name
+
+    Returns:
+        Any: user value
+    """
     value = lx.eval("user.value {} ?".format(name))
     return value
 
 
-def set_user_value(name, value):
+def set_user_value(name: str, value: Any) -> None:
+    """sets user value
+
+    Args:
+        name (str): user value name
+        value (Any): value to set
+    """
     lx.eval("user.value {} {{{}}}".format(name, value))
+
+
+def is_defined_user_value(name: str) -> bool:
+    """checks if user value defined
+
+    Args:
+        name (str): user value name
+
+    Returns:
+        bool: True if user value existed, False otherwise
+    """
+    return bool(lx.eval(f"query scriptsysservice userValue.isDefined ? {name}"))
+
+
+def def_new_user_value(name: str, val_type: str, val_life: str) -> None:
+    """defines new user value
+
+    Args:
+        name (str): user value name
+        val_type (str): user value type
+        val_life (str): user value life
+    """
+    lx.eval(f"user.defNew {name} type:{val_type} life:{val_life}")
+
+
+def delete_defined_user_value(name: str) -> None:
+    """deletes user value by name
+
+    Args:
+        name (str): user value name
+    """
+    lx.eval(f"!user.defDelete {name}")
 
 
 def parent_items_to(items, parent, index=0):
@@ -30,13 +76,13 @@ def parent_items_to(items, parent, index=0):
         item.select()
 
     if not parent:
-        lx.eval('item.parent parent:{} inPlace:1')
+        lx.eval("item.parent parent:{} inPlace:1")
         return
 
     # select parent item
     parent.select()
     # parent items to parent item
-    lx.eval(f'item.parent position:{index} inPlace:1')
+    lx.eval(f"item.parent position:{index} inPlace:1")
 
 
 def set_mesh_debug_info(mesh, info_str, debug_mode=False):
@@ -95,7 +141,7 @@ def get_description_tag(item: modo.Item) -> str:
     item.select(replace=True)
     description_tag = lx.eval("item.tag string DESC ?")
     if not description_tag:
-        return ''
+        return ""
 
     return description_tag
 
@@ -209,10 +255,10 @@ def item_rotate(item, rads):
 def safe_type(item):
     if item not in modo.Scene().groups:
         return item.type
-    if item.type == 'assembly':
+    if item.type == "assembly":
         return item.type
-    if item.type == '':
-        return 'group'
+    if item.type == "":
+        return "group"
 
 
 def remove_if_exist(item, children):
@@ -228,19 +274,18 @@ def remove_if_exist(item, children):
 
 
 def is_material_ptyp(ptyp):
-    if ptyp == 'Material':
+    if ptyp == "Material":
         return True
-    if ptyp == '':
+    if ptyp == "":
         return True
 
     return False
 
 
-def get_directory(title: Union[str, None], path: Union[str, None] = None) -> Union[str, None]:
+def get_directory(
+    title: Union[str, None], path: Union[str, None] = None
+) -> Union[str, None]:
     if not title:
         title = "Choose Directory"
 
-    return modo.dialogs.dirBrowse(
-        title=title,
-        path=path
-    )
+    return modo.dialogs.dirBrowse(title=title, path=path)
