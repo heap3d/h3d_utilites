@@ -76,7 +76,7 @@ def parent_items_to(items, parent, index=0):
         item.select()
 
     if not parent:
-        lx.eval("item.parent parent:{} inPlace:1")
+        lx.eval(f"item.parent parent:{{}} position:{index} inPlace:1")
         return
 
     # select parent item
