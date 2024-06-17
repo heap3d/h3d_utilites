@@ -12,7 +12,6 @@ import inspect
 import os.path
 import modo
 
-from h3d_utilites.scripts.h3d_exceptions import H3dExitException
 import h3d_utilites.scripts.h3d_utils as h3du
 
 
@@ -57,7 +56,8 @@ class H3dDebug:
 
     def exit(self, message="debug exit"):
         self.print_debug(message)
-        raise H3dExitException(message)
+        print(message)
+        raise SystemExit(message)
 
     def get_name(self, item):
         if not self.enable:
