@@ -13,6 +13,9 @@ import modo.mathutils as mmu
 from typing import Union, Any
 
 
+VERTEX_ZERO_NAME = 'vertex_ZERO'
+
+
 def get_user_value(name: str) -> Any:
     """gets user value by name
 
@@ -330,10 +333,14 @@ def create_vertex_at_zero(name: str) -> modo.Item:
 
 
 def replicator_link_prototype(item: modo.Item, replicator: modo.Item) -> None:
-    lx.eval(f'item.link particle.proto {item.id} {replicator.id} replace:false')
+    lx.eval(f'item.link particle.proto {item.id} {replicator.id} replace:true')
 
 
-def get_vertex_zero(name: str) -> modo.Item:
+def replicator_link_point_source(item: modo.Item, replicator: modo.Item) -> None:
+    lx.eval(f'item.link particle.source {item.id} {replicator.id} posT:0 replace:true')
+
+
+def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> modo.Item:
     try:
         return modo.Scene().item(name)
     except LookupError:
