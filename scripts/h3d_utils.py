@@ -318,3 +318,23 @@ def display_preset_browser(enable: bool):
 
 def switch_preset_browser():
     display_preset_browser(not is_preset_browser_opened())
+
+
+def create_vertex_at_zero(name: str) -> modo.Item:
+    vertex_zero_mesh = modo.Scene().addMesh(name)
+    vertex_zero_mesh.select(replace=True)
+    lx.eval('tool.set prim.makeVertex on 0')
+    lx.eval('tool.apply')
+    lx.eval('tool.set prim.makeVertex off 0')
+    return vertex_zero_mesh
+
+
+def replicator_link_prototype(item: modo.Item, replicator: modo.Item) -> None:
+    lx.eval(f'item.link particle.proto {item.id} {replicator.id} replace:false')
+
+
+def get_vertex_zero(name: str) -> modo.Item:
+    try:
+        return modo.Scene().item(name)
+    except LookupError:
+        return create_vertex_at_zero(name)
