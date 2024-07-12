@@ -289,3 +289,32 @@ def get_directory(
         title = "Choose Directory"
 
     return modo.dialogs.dirBrowse(title=title, path=path)
+
+
+def is_preset_browser_opened() -> bool:
+    return bool(lx.eval('layout.createOrClose PresetBrowser presetBrowserPalette ?'))
+
+
+def open_preset_browser():
+    lx.eval(
+        'layout.createOrClose PresetBrowser presetBrowserPalette true Presets '
+        'width:800 height:600 persistent:true style:palette'
+    )
+
+
+def close_preset_browser():
+    lx.eval(
+        'layout.createOrClose PresetBrowser presetBrowserPalette false Presets width:800 height:600 '
+        'persistent:true style:palette'
+    )
+
+
+def display_preset_browser(enable: bool):
+    if enable:
+        open_preset_browser()
+    else:
+        close_preset_browser()
+
+
+def switch_preset_browser():
+    display_preset_browser(not is_preset_browser_opened())
