@@ -14,6 +14,7 @@ from typing import Union, Any
 
 
 VERTEX_ZERO_NAME = 'vertex_ZERO'
+EMPTY_PTAG = 'Material'
 
 
 def get_user_value(name: str) -> Any:
@@ -283,6 +284,24 @@ def is_material_ptyp(ptyp):
         return True
 
     return False
+
+
+def get_ptag_type(mask_item):
+    ptyp = mask_item.channel('ptyp').get()
+    if not ptyp:
+        return EMPTY_PTAG
+    return ptyp
+
+
+def get_ptag(mask_item):
+    ptag = mask_item.channel('ptag').get()
+    return ptag
+
+
+def get_item_mask(mask_item):
+    mask_item.select(True)
+    item_mask = lx.eval('mask.setMesh ?')
+    return item_mask
 
 
 def get_directory(
