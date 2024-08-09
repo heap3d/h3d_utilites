@@ -367,3 +367,11 @@ def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> modo.Item:
         return modo.Scene().item(name)
     except LookupError:
         return create_vertex_at_zero(name)
+
+
+def get_parent_index(item: modo.Item) -> int:
+    if index := item.parentIndex:
+        return index
+    if index := item.rootIndex:
+        return index
+    return 0
