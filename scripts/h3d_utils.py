@@ -72,21 +72,11 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f"!user.defDelete {name}")
 
 
-def parent_items_to(items, parent, index=0):
-    # clear selection
-    modo.Scene().deselect()
-    # select items
+def parent_items_to(items: list[modo.Item], parent: modo.Item, index=0):
     for item in items:
-        item.select()
-
-    if not parent:
-        lx.eval(f"item.parent parent:{{}} position:{index} inPlace:1")
-        return
-
-    # select parent item
-    parent.select()
-    # parent items to parent item
-    lx.eval(f"item.parent position:{index} inPlace:1")
+        if not parent:
+            lx.eval(f"item.parent item:{item.id} parent:{{}} position:{index} inPlace:1")
+        lx.eval(f"item.parent item:{item.id} parent:{parent.id} position:{index} inPlace:1")
 
 
 def set_mesh_debug_info(mesh, info_str, debug_mode=False):
@@ -375,3 +365,12 @@ def get_parent_index(item: modo.Item) -> int:
     if index := item.rootIndex:
         return index
     return 0
+
+
+def match_pos_rot(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item pos average:false item:{item.id} itemTo:{itemTo.id}')
+    lx.eval(f'item.match item rot average:false item:{item.id} itemTo:{itemTo.id}')
+
+
+def match_scl(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item scl average:false item:{item.id} itemTo:{itemTo.id}')
