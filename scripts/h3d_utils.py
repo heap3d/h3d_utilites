@@ -76,7 +76,8 @@ def parent_items_to(items: list[modo.Item], parent: modo.Item, index=0):
     for item in items:
         if not parent:
             lx.eval(f"item.parent item:{item.id} parent:{{}} position:{index} inPlace:1")
-        lx.eval(f"item.parent item:{item.id} parent:{parent.id} position:{index} inPlace:1")
+        else:
+            lx.eval(f"item.parent item:{item.id} parent:{parent.id} position:{index} inPlace:1")
 
 
 def set_mesh_debug_info(mesh, info_str, debug_mode=False):
