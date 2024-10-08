@@ -72,7 +72,7 @@ class H3dDebug:
 
         return name
 
-    def print_items(self, items, message=None, indent=0):
+    def print_items(self, items, message=None, indent=0, emptyline=True):
         if not self.enable:
             return
         if message:
@@ -81,6 +81,8 @@ class H3dDebug:
             self.print_debug(f"{len(items)} items:", indent=indent)
         if not items:
             self.print_debug(items, indent=indent + 1)
+            if emptyline:
+                self.print_debug('')
             return
 
         for i in items:
@@ -90,6 +92,9 @@ class H3dDebug:
                 )
             else:
                 self.print_debug("<{}>".format(i), indent=indent + 1)
+
+        if emptyline:
+            self.print_debug('')
 
     def file_init(self, shortname, fullname):
         if not shortname and not fullname:
