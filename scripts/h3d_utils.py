@@ -7,10 +7,11 @@
 # EMAG
 # h3d utils
 
+from typing import Union, Any
+
 import lx
 import modo
 import modo.mathutils as mmu
-from typing import Union, Any
 
 
 VERTEX_ZERO_NAME = 'vertex_ZERO'

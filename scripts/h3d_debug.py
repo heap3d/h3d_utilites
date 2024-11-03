@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # ================================
-# (C)2022-2023 Dmytro Holub
+# (C)2022-2024 Dmytro Holub
 # heap3d@gmail.com
 # --------------------------------
 # modo python
@@ -10,29 +10,38 @@
 import datetime
 import inspect
 import os.path
+from typing import Union
+
 import modo
 
-import h3d_utilites.scripts.h3d_utils as h3du
+from h3d_utilites.scripts.h3d_utils import replace_file_ext, safe_type
 
 
 class H3dDebug:
-    def __init__(self, enable=False, file=None, fullpath=None, indent=0, indent_str=" " * 4):
+    def __init__(self, enable=False, file=None, fullpath=None, indent=0, indent_str=' ' * 4):
         self.enable = enable
         self.initial_indent = int(indent)
         self.indent = self.initial_indent
         self.indent_str = indent_str
-        self.log_path = ""
+        self.log_path = ''
+        self.last_emptyline = True
         if self.enable:
             self.file_init(shortname=file, fullname=fullpath)
-        print(f"log enabled: {self.enable}")
-        print(f"log path: {self.log_path}")
+        print(f'log enabled: {self.enable}')
+        print(f'log path: {self.log_path}')
 
-    def print_debug(self, message, indent=0):
+    def print_debug(self, message, indent=0, forced=False):
         if not self.enable:
             return
+        if message == '' and self.last_emptyline and not forced:
+            return
+        if message == '':
+            self.last_emptyline = True
+        else:
+            self.last_emptyline = False
         self.indent += indent
-        curtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        message_upd = "{}{} {}".format(curtime, self.indent_str * self.indent, message)
+        curtime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+        message_upd = '{}{} {}'.format(curtime, self.indent_str * self.indent, message)
         if self.log_path:
             self.print_to_file(message_upd)
         else:
@@ -45,16 +54,16 @@ class H3dDebug:
         if not self.log_path:
             self.print_to_sys(message)
             return
-        with open(self.log_path, "a") as f:
+        with open(self.log_path, 'a') as f:
             f.write(message)
-            f.write("\n")
+            f.write('\n')
 
     def print_to_sys(self, message):
         if not self.enable:
             return
         print(message)
 
-    def exit(self, message="debug exit"):
+    def exit(self, message='debug exit'):
         self.print_debug(message)
         print(message)
         raise SystemExit(message)
@@ -68,7 +77,7 @@ class H3dDebug:
         try:
             name = item.name
         except AttributeError:
-            name = ""
+            name = ''
 
         return name
 
@@ -76,9 +85,9 @@ class H3dDebug:
         if not self.enable:
             return
         if message:
-            self.print_debug(message + f" ({len(items)})", indent=indent)
+            self.print_debug(message + f' ({len(items)})', indent=indent)
         else:
-            self.print_debug(f"{len(items)} items:", indent=indent)
+            self.print_debug(f'{len(items)} items:', indent=indent)
         if not items:
             self.print_debug(items, indent=indent + 1)
             if emptyline:
@@ -86,12 +95,12 @@ class H3dDebug:
             return
 
         for i in items:
-            if "modo.item." in str(type(i)):
+            if 'modo.item.' in str(type(i)):
                 self.print_debug(
-                    "<{}> : <{}>".format(i.name, h3du.safe_type(i)), indent=indent + 1
+                    '<{}> : <{}>'.format(i.name, safe_type(i)), indent=indent + 1
                 )
             else:
-                self.print_debug("<{}>".format(i), indent=indent + 1)
+                self.print_debug('<{}>'.format(i), indent=indent + 1)
 
         if emptyline:
             self.print_debug('')
@@ -112,21 +121,29 @@ class H3dDebug:
 
         self.log_reset()
 
-    def print_fn_in(self):
+    def print_fn_in(self, message='', emptyline=True):
         if not self.enable:
             return
         caller = inspect.stack()[1][3]
-        message = "{}(): in >>>>".format(caller)
-        self.print_debug(message)
+        out_string = f'>>>> in: {caller}() {message}'
+        if emptyline:
+            self.print_debug('')
+        self.print_debug(out_string)
+        if emptyline:
+            self.print_debug('')
         self.indent_inc()
 
-    def print_fn_out(self):
+    def print_fn_out(self, message='', emptyline=True):
         if not self.enable:
             return
         caller = inspect.stack()[1][3]
         self.indent_dec()
-        message = "<<<< out: {}()".format(caller)
-        self.print_debug(message)
+        out_string = f'<<<< out: {caller}() {message}'
+        if emptyline:
+            self.print_debug('')
+        self.print_debug(out_string)
+        if emptyline:
+            self.print_debug('')
 
     def indent_inc(self, inc=1):
         if not self.enable:
@@ -141,7 +158,7 @@ class H3dDebug:
     def log_reset(self):
         if not self.log_path:
             return
-        with open(self.log_path, "w"):
+        with open(self.log_path, 'w'):
             # reinitialize log file
             pass
         self.indent = self.initial_indent
@@ -151,7 +168,7 @@ class H3dDebug:
         public_members = []
         for member in members:
             # skip if starts with underscore
-            if member[0].startswith("_"):
+            if member[0].startswith('_'):
                 continue
             # skip if member is method
             if inspect.ismethod(member[1]):
@@ -160,3 +177,59 @@ class H3dDebug:
             public_members.append(member)
 
         return public_members
+
+    def print_smart(self, variable, indent=0, emptyline=True, forced=False):
+        var_name = get_variable_name_deep(variable)
+        try:
+            item_name = f'{variable.name}'
+        except AttributeError:
+            item_name = ''
+
+        var_string = f'{item_name}'
+
+        try:
+            _ = [i for i in variable]
+        except TypeError:
+            self.print_debug(f'<{var_string}> : <{variable}>', indent)
+        else:
+            if not isinstance(variable, str):
+                self.print_items(variable, f'{var_name}:', indent, emptyline)
+                return
+            if var_name is None:
+                self.print_debug(variable, indent, forced)
+            else:
+                self.print_debug(f'<{var_string}> : <{variable}>', indent, forced)
+
+
+def get_variable_name(var) -> Union[str, None]:
+    current_frame = inspect.currentframe()
+    try:
+        frame_locals = current_frame.f_back.f_locals  # type: ignore
+        var_name = [name for name, value in frame_locals.items() if value is var][0]
+        return var_name
+    except IndexError:
+        return None
+    finally:
+        del current_frame
+
+
+def get_variable_name_deep(var) -> Union[str, None]:
+    current_frame = inspect.currentframe()
+    try:
+        frame_locals = current_frame.f_back.f_back.f_locals  # type: ignore
+        var_name = [name for name, value in frame_locals.items() if value is var][0]
+        return var_name
+    except IndexError:
+        return None
+    finally:
+        del current_frame
+
+
+try:
+    _ = h3dd  # type: ignore
+except NameError:
+    scenename = replace_file_ext(modo.Scene().filename, ".log")
+    h3dd = H3dDebug(enable=True, file=scenename)
+    prints = h3dd.print_smart
+    fn_in = h3dd.print_fn_in
+    fn_out = h3dd.print_fn_out
