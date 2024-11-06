@@ -347,11 +347,11 @@ def create_vertex_at_zero(name: str) -> modo.Item:
 
 
 def replicator_link_prototype(item: modo.Item, replicator: modo.Item) -> None:
-    lx.eval(f'item.link particle.proto {item.id} {replicator.id} replace:true')
+    lx.eval(f'item.link particle.proto {{{item.id}}} {{{replicator.id}}} replace:true')
 
 
 def replicator_link_point_source(item: modo.Item, replicator: modo.Item) -> None:
-    lx.eval(f'item.link particle.source {item.id} {replicator.id} posT:0 replace:true')
+    lx.eval(f'item.link particle.source {{{item.id}}} {{{replicator.id}}} posT:0 replace:true')
 
 
 def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> modo.Item:
@@ -370,9 +370,9 @@ def get_parent_index(item: modo.Item) -> int:
 
 
 def match_pos_rot(item: modo.Item, itemTo: modo.Item):
-    lx.eval(f'item.match item pos average:false item:{item.id} itemTo:{itemTo.id}')
-    lx.eval(f'item.match item rot average:false item:{item.id} itemTo:{itemTo.id}')
+    lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+    lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
 def match_scl(item: modo.Item, itemTo: modo.Item):
-    lx.eval(f'item.match item scl average:false item:{item.id} itemTo:{itemTo.id}')
+    lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
