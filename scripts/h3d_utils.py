@@ -7,7 +7,7 @@
 # EMAG
 # h3d utils
 
-from typing import Union, Any
+from typing import Union, Any, Iterable
 
 import lx
 import modo
@@ -73,7 +73,14 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f"!user.defDelete {name}")
 
 
-def parent_items_to(items: list[modo.Item], parent: modo.Item, index=0):
+def parent_items_to(items: Iterable[modo.Item], parent: modo.Item, index=0):
+    """parent items to an parent item at specified index
+
+    Args:
+        items (Iterable[modo.Item]): items to be parented
+        parent (modo.Item): item to parent
+        index (int, optional): parent index. Defaults to 0.
+    """
     for item in items:
         if not parent:
             lx.eval(f"item.parent item:{{{item.id}}} parent:{{}} position:{index} inPlace:1")
