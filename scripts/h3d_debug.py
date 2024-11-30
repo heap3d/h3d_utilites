@@ -167,7 +167,7 @@ class H3dDebug:
         if not self.enable:
             return
 
-        self.filename_init(shortname=replace_file_ext(modo.Scene().name, '.log'))
+        self.filename_init(fullname=self.log_path)
 
         if not self.log_path:
             return
