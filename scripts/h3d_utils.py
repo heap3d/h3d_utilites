@@ -383,3 +383,74 @@ def match_pos_rot(item: modo.Item, itemTo: modo.Item):
 
 def match_scl(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+
+
+def is_visible(item: modo.Item) -> bool:
+    if not is_local_visible(item):
+        return False
+
+    parents = item.parents
+    if not parents:
+        return True
+
+    if any(map(lambda x: is_visible_alloff(x), parents)):
+        return False
+
+    return True
+
+
+def is_local_visible(item: modo.Item) -> bool:
+    visible_channel = item.channel('visible')
+    if not visible_channel:
+        return False
+
+    visible = str(visible_channel.get())
+    visible_values = {
+        'default': True,
+        'on': True,
+        'off': False,
+        'allOff': False,
+    }
+
+    result = visible_values.get(visible, False)
+    return result
+
+
+def is_visible_default(item: modo.Item) -> bool:
+    visible_channel = item.channel('visible')
+    if not visible_channel:
+        return False
+
+    visible = str(visible_channel.get())
+
+    return visible == 'default'
+
+
+def is_visible_on(item: modo.Item) -> bool:
+    visible_channel = item.channel('visible')
+    if not visible_channel:
+        return False
+
+    visible = str(visible_channel.get())
+
+    return visible == 'on'
+
+
+def is_visible_off(item: modo.Item) -> bool:
+    visible_channel = item.channel('visible')
+    if not visible_channel:
+        return False
+
+    visible = str(visible_channel.get())
+
+    return visible == 'off'
+
+
+def is_visible_alloff(item: modo.Item) -> bool:
+    visible_channel = item.channel('visible')
+    if not visible_channel:
+        return False
+
+    visible = str(visible_channel.get())
+
+    return visible == 'allOff'
