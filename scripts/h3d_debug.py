@@ -172,9 +172,14 @@ class H3dDebug:
         if not self.log_path:
             return
 
-        with open(self.log_path, 'w'):
-            # reinitialize log file
-            pass
+        try:
+            with open(self.log_path, 'w'):
+                # reinitialize log file
+                pass
+        except Exception:
+            # output to event Log
+            self.log_path = ''
+
         self.indent = self.initial_indent
 
         print(f'log enabled: {self.enable}')
@@ -245,6 +250,7 @@ def get_variable_name_deep(var) -> Union[str, None]:
 
 
 def get_log_default_path() -> str:
+    # permission error
     scene_path = str(lx.eval('preset.project.values ?exportPath'))
     return scene_path
 
