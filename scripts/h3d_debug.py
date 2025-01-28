@@ -203,7 +203,7 @@ class H3dDebug:
     def print_smart(self, variable, indent=0, emptyline=True, forced=False):
         if not self.enable:
             return
-        var_name = get_variable_name_deep(variable)
+        var_name = f'{get_variable_name_deep(variable)}'
         try:
             item_name = f'{variable.name}'
         except AttributeError:
@@ -221,6 +221,8 @@ class H3dDebug:
                 return
             if var_name is None:
                 self.print_debug(variable, indent, forced)
+            elif not var_string:
+                self.print_debug(f'<{var_name}> : <{variable}>', indent, forced)
             else:
                 self.print_debug(f'<{var_string}> : <{variable}>', indent, forced)
 
