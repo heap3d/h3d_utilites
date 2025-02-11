@@ -10,8 +10,7 @@
 from typing import Union, Any
 
 import lx
-import modo
-import modo.mathutils as mmu
+from modo import Vector3, Item, Mesh, Scene, dialogs
 
 
 VERTEX_ZERO_NAME = 'vertex_ZERO'
@@ -73,12 +72,12 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f"!user.defDelete {name}")
 
 
-def parent_items_to(items: list[modo.Item], parent: Union[None, modo.Item], index=0, inplace=True):
+def parent_items_to(items: list[Item], parent: Union[None, Item], index=0, inplace=True):
     """parent items to an parent item at specified index
 
     Args:
-        items (Iterable[modo.Item]): items to be parented
-        parent (modo.Item): item to parent
+        items (Iterable[Item]): items to be parented
+        parent (Item): item to parent
         index (int, optional): parent index. Defaults to 0.
         inplace (bool, optional): parent in place. Defaults to True.
     """
@@ -122,11 +121,11 @@ def get_mesh_debug_info(mesh):
     return lx.eval("item.tag string DESC ?")
 
 
-def set_description_tag(item: modo.Item, text: str) -> None:
+def set_description_tag(item: Item, text: str) -> None:
     """set description tag for specified item
 
     Args:
-        item (modo.Item): item for tag addition
+        item (Item): item for tag addition
         text (str): text for decription tag
     """
     item.select(replace=True)
@@ -134,11 +133,11 @@ def set_description_tag(item: modo.Item, text: str) -> None:
     lx.eval('item.tag string DESC "{}"'.format(text))
 
 
-def get_description_tag(item: modo.Item) -> str:
+def get_description_tag(item: Item) -> str:
     """get description tag for specified item
 
     Args:
-        item (modo.Item): item to get tag
+        item (Item): item to get tag
 
     Returns:
         str: tag text
@@ -173,13 +172,13 @@ def merge_two_meshes(mesh1, mesh2):
     lx.eval("layer.mergeMeshes true")
 
 
-def get_mesh_bounding_box_size(mesh):
+def get_mesh_bounding_box_size(mesh: Mesh):
     if not mesh:
-        return mmu.Vector3()
+        return Vector3()
     if not mesh.geometry.polygons:
-        return mmu.Vector3()
+        return Vector3()
 
-    v1, v2 = map(mmu.Vector3, mesh.geometry.boundingBox)
+    v1, v2 = map(Vector3, mesh.geometry.boundingBox)
     return v2 - v1
 
 
@@ -238,27 +237,21 @@ def itype_int(type_str: Union[str, None]) -> int:
     return int_type
 
 
-def item_rotate(item, rads):
+def item_rotate(item: Item, rads: Vector3):
     if not item:
-        print("item_rotate(): not item.")
-        return
+        raise ValueError("item_rotate(): not item.")
     if not rads:
-        print("item_rotate(): not rads.")
-        return
+        raise ValueError("item_rotate(): not rads.")
     if len(rads) != 3:
-        print("item_rotate(): len(rads) != 3")
-        return
+        raise ValueError("item_rotate(): len(rads) != 3")
 
-    # get current rotation
-    rotation = mmu.Vector3(item.rotation.get())
-    # update item rotation
-    rotation_upd = (rotation.x + rads.x, rotation.y + rads.y, rotation.z + rads.z)
-    # set item rotation
-    item.rotation.set(rotation_upd)
+    lx.eval(f"transform.channel rot.X ?+{rads.x} item:{{{item.id}}}")
+    lx.eval(f"transform.channel rot.Y ?+{rads.y} item:{{{item.id}}}")
+    lx.eval(f"transform.channel rot.Z ?+{rads.z} item:{{{item.id}}}")
 
 
-def safe_type(item):
-    if item not in modo.Scene().groups:
+def safe_type(item: Item):
+    if item not in Scene().groups:
         return item.type
     if item.type == "assembly":
         return item.type
@@ -266,12 +259,12 @@ def safe_type(item):
         return "group"
 
 
-def remove_if_exist(item, children):
+def remove_if_exist(item: Item, children):
     if not item:
         return False
     try:
-        modo.Scene().item(item.id)
-        modo.Scene().removeItems(item, children)
+        Scene().item(item.id)
+        Scene().removeItems(item, children)
     except LookupError:
         return False
 
@@ -311,7 +304,7 @@ def get_directory(
     if not title:
         title = "Choose Directory"
 
-    return modo.dialogs.dirBrowse(title=title, path=path)
+    return dialogs.dirBrowse(title=title, path=path)
 
 
 def is_preset_browser_opened() -> bool:
@@ -343,8 +336,8 @@ def switch_preset_browser():
     display_preset_browser(not is_preset_browser_opened())
 
 
-def create_vertex_at_zero(name: str) -> modo.Item:
-    vertex_zero_mesh = modo.Scene().addMesh(name)
+def create_vertex_at_zero(name: str) -> Item:
+    vertex_zero_mesh = Scene().addMesh(name)
     vertex_zero_mesh.select(replace=True)
     lx.eval('tool.set prim.makeVertex on 0')
     lx.eval('tool.attr prim.makeVertex cenX 0.0')
@@ -355,22 +348,22 @@ def create_vertex_at_zero(name: str) -> modo.Item:
     return vertex_zero_mesh
 
 
-def replicator_link_prototype(item: modo.Item, replicator: modo.Item) -> None:
+def replicator_link_prototype(item: Item, replicator: Item) -> None:
     lx.eval(f'item.link particle.proto {{{item.id}}} {{{replicator.id}}} replace:true')
 
 
-def replicator_link_point_source(item: modo.Item, replicator: modo.Item) -> None:
+def replicator_link_point_source(item: Item, replicator: Item) -> None:
     lx.eval(f'item.link particle.source {{{item.id}}} {{{replicator.id}}} posT:0 replace:true')
 
 
-def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> modo.Item:
+def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> Item:
     try:
-        return modo.Scene().item(name)
+        return Scene().item(name)
     except LookupError:
         return create_vertex_at_zero(name)
 
 
-def get_parent_index(item: modo.Item) -> int:
+def get_parent_index(item: Item) -> int:
     if index := item.parentIndex:
         return index
     if index := item.rootIndex:
@@ -378,16 +371,16 @@ def get_parent_index(item: modo.Item) -> int:
     return 0
 
 
-def match_pos_rot(item: modo.Item, itemTo: modo.Item):
+def match_pos_rot(item: Item, itemTo: Item):
     lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def match_scl(item: modo.Item, itemTo: modo.Item):
+def match_scl(item: Item, itemTo: Item):
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def is_visible(item: modo.Item) -> bool:
+def is_visible(item: Item) -> bool:
     if not is_local_visible(item):
         return False
 
@@ -401,7 +394,7 @@ def is_visible(item: modo.Item) -> bool:
     return True
 
 
-def is_local_visible(item: modo.Item) -> bool:
+def is_local_visible(item: Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -418,7 +411,7 @@ def is_local_visible(item: modo.Item) -> bool:
     return result
 
 
-def is_visible_default(item: modo.Item) -> bool:
+def is_visible_default(item: Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -428,7 +421,7 @@ def is_visible_default(item: modo.Item) -> bool:
     return visible == 'default'
 
 
-def is_visible_on(item: modo.Item) -> bool:
+def is_visible_on(item: Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -438,7 +431,7 @@ def is_visible_on(item: modo.Item) -> bool:
     return visible == 'on'
 
 
-def is_visible_off(item: modo.Item) -> bool:
+def is_visible_off(item: Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -448,7 +441,7 @@ def is_visible_off(item: modo.Item) -> bool:
     return visible == 'off'
 
 
-def is_visible_alloff(item: modo.Item) -> bool:
+def is_visible_alloff(item: Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False

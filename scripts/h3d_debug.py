@@ -12,8 +12,8 @@ import inspect
 import os.path
 from typing import Union
 
-import modo
 import lx
+from modo import Scene
 
 from h3d_utilites.scripts.h3d_utils import replace_file_ext, safe_type
 
@@ -119,7 +119,7 @@ class H3dDebug:
         self.log_path = fullname
 
         if not self.log_path:
-            scene_path = modo.Scene().filename
+            scene_path = Scene().filename
             if not scene_path:
                 scene_path = get_log_default_path()
 
@@ -260,7 +260,7 @@ def get_log_default_path() -> str:
 try:
     _ = h3dd  # type: ignore
 except NameError:
-    h3dd = H3dDebug(file=replace_file_ext(modo.Scene().name, ".log"))
+    h3dd = H3dDebug(file=replace_file_ext(Scene().name, ".log"))
     prints = h3dd.print_smart
     fn_in = h3dd.print_fn_in
     fn_out = h3dd.print_fn_out
