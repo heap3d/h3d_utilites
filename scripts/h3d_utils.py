@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # ================================
-# (C)2022-2024 Dmytro Holub
+# (C)2022-2025 Dmytro Holub
 # heap3d@gmail.com
 # --------------------------------
 # modo python
@@ -11,6 +11,7 @@ from typing import Union, Any
 
 import lx
 from modo import Vector3, Item, Mesh, Scene, dialogs
+from modo.mathutils import math
 
 
 VERTEX_ZERO_NAME = 'vertex_ZERO'
@@ -26,7 +27,7 @@ def get_user_value(name: str) -> Any:
     Returns:
         Any: user value
     """
-    value = lx.eval("user.value {} ?".format(name))
+    value = lx.eval('user.value {} ?'.format(name))
     return value
 
 
@@ -37,7 +38,7 @@ def set_user_value(name: str, value: Any) -> None:
         name (str): user value name
         value (Any): value to set
     """
-    lx.eval("user.value {} {{{}}}".format(name, value))
+    lx.eval('user.value {} {{{}}}'.format(name, value))
 
 
 def is_defined_user_value(name: str) -> bool:
@@ -49,7 +50,7 @@ def is_defined_user_value(name: str) -> bool:
     Returns:
         bool: True if user value existed, False otherwise
     """
-    return bool(lx.eval(f"query scriptsysservice userValue.isDefined ? {name}"))
+    return bool(lx.eval(f'query scriptsysservice userValue.isDefined ? {name}'))
 
 
 def def_new_user_value(name: str, val_type: str, val_life: str) -> None:
@@ -60,7 +61,7 @@ def def_new_user_value(name: str, val_type: str, val_life: str) -> None:
         val_type (str): user value type
         val_life (str): user value life
     """
-    lx.eval(f"user.defNew {name} type:{val_type} life:{val_life}")
+    lx.eval(f'user.defNew {name} type:{val_type} life:{val_life}')
 
 
 def delete_defined_user_value(name: str) -> None:
@@ -69,7 +70,7 @@ def delete_defined_user_value(name: str) -> None:
     Args:
         name (str): user value name
     """
-    lx.eval(f"!user.defDelete {name}")
+    lx.eval(f'!user.defDelete {name}')
 
 
 def parent_items_to(items: list[Item], parent: Union[None, Item], index=0, inplace=True):
@@ -84,9 +85,9 @@ def parent_items_to(items: list[Item], parent: Union[None, Item], index=0, inpla
     inplace_num = 1 if inplace else 0
     for item in items:
         if not parent:
-            lx.eval(f"item.parent item:{{{item.id}}} parent:{{}} position:{index} inPlace:{inplace_num}")
+            lx.eval(f'item.parent item:{{{item.id}}} parent:{{}} position:{index} inPlace:{inplace_num}')
         else:
-            lx.eval(f"item.parent item:{{{item.id}}} parent:{{{parent.id}}} position:{index} inPlace:{inplace_num}")
+            lx.eval(f'item.parent item:{{{item.id}}} parent:{{{parent.id}}} position:{index} inPlace:{inplace_num}')
 
 
 def set_mesh_debug_info(mesh, info_str, debug_mode=False):
@@ -101,7 +102,7 @@ def set_mesh_debug_info(mesh, info_str, debug_mode=False):
         return
     if debug_mode:
         mesh.select(replace=True)
-        lx.eval("item.tagAdd DESC")
+        lx.eval('item.tagAdd DESC')
         lx.eval('item.tag string DESC "{}"'.format(info_str))
 
 
@@ -118,7 +119,7 @@ def get_mesh_debug_info(mesh):
         return None
 
     mesh.select(replace=True)
-    return lx.eval("item.tag string DESC ?")
+    return lx.eval('item.tag string DESC ?')
 
 
 def set_description_tag(item: Item, text: str) -> None:
@@ -129,7 +130,7 @@ def set_description_tag(item: Item, text: str) -> None:
         text (str): text for decription tag
     """
     item.select(replace=True)
-    lx.eval("item.tagAdd DESC")
+    lx.eval('item.tagAdd DESC')
     lx.eval('item.tag string DESC "{}"'.format(text))
 
 
@@ -143,9 +144,9 @@ def get_description_tag(item: Item) -> str:
         str: tag text
     """
     item.select(replace=True)
-    description_tag = lx.eval("item.tag string DESC ?")
+    description_tag = lx.eval('item.tag string DESC ?')
     if not description_tag:
-        return ""
+        return ''
 
     return description_tag
 
@@ -153,7 +154,7 @@ def get_description_tag(item: Item) -> str:
 def get_full_mesh_area(mesh):
     if not mesh:
         return None
-    if mesh.type != "mesh":
+    if mesh.type != 'mesh':
         return 0.0
 
     full_area = sum([poly.area for poly in mesh.geometry.polygons])
@@ -166,10 +167,10 @@ def merge_two_meshes(mesh1, mesh2):
     if not mesh2:
         return
 
-    lx.eval("select.type item")
+    lx.eval('select.type item')
     mesh1.select(replace=True)
     mesh2.select()
-    lx.eval("layer.mergeMeshes true")
+    lx.eval('layer.mergeMeshes true')
 
 
 def get_mesh_bounding_box_size(mesh: Mesh):
@@ -189,9 +190,9 @@ def get_source_of_instance(item):
         return item
 
     try:
-        item_source = item.itemGraph("source").forward(0)
+        item_source = item.itemGraph('source').forward(0)
     except LookupError:
-        print("No source of instance item found for <{}>".format(item.name))
+        print('No source of instance item found for <{}>'.format(item.name))
         return None
     if item_source.isAnInstance:
         return get_source_of_instance(item_source)
@@ -199,13 +200,13 @@ def get_source_of_instance(item):
     return item_source
 
 
-def replace_file_ext(name="log", ext=".txt"):
+def replace_file_ext(name='log', ext='.txt'):
     try:
-        basename = name.rsplit(".", 1)[0]
+        basename = name.rsplit('.', 1)[0]
     except AttributeError:
         basename = name
 
-    return "{}{}".format(basename, ext)
+    return '{}{}'.format(basename, ext)
 
 
 def itype_str(type_int: Union[int, None]) -> str:
@@ -237,26 +238,131 @@ def itype_int(type_str: Union[str, None]) -> int:
     return int_type
 
 
-def item_rotate(item: Item, rads: Vector3):
+def item_move(item: Item, amount: Vector3):
     if not item:
-        raise ValueError("item_rotate(): not item.")
-    if not rads:
-        raise ValueError("item_rotate(): not rads.")
-    if len(rads) != 3:
-        raise ValueError("item_rotate(): len(rads) != 3")
+        raise ValueError('No item')
+    if not amount:
+        raise ValueError('No amount')
 
-    lx.eval(f"transform.channel rot.X ?+{rads.x} item:{{{item.id}}}")
-    lx.eval(f"transform.channel rot.Y ?+{rads.y} item:{{{item.id}}}")
-    lx.eval(f"transform.channel rot.Z ?+{rads.z} item:{{{item.id}}}")
+    lx.eval(f'transform.channel pos.X ?+{amount.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel pos.Y ?+{amount.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel pos.Z ?+{amount.z} item:{{{item.id}}}')
+
+
+def item_rotate(item: Item, radians: Vector3):
+    if not item:
+        raise ValueError('No item')
+    if not radians:
+        raise ValueError('No amount')
+
+    lx.eval(f'transform.channel rot.X ?+{radians.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel rot.Y ?+{radians.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel rot.Z ?+{radians.z} item:{{{item.id}}}')
+
+
+def item_scale(item: Item, amount: Vector3):
+    if not item:
+        raise ValueError('No item')
+    if not amount:
+        raise ValueError('No amount')
+
+    lx.eval(f'transform.channel scl.X ?+{amount.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel scl.Y ?+{amount.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel scl.Z ?+{amount.z} item:{{{item.id}}}')
+
+
+def item_set_position(item: Item, position: Vector3):
+    if not item:
+        raise ValueError('No item')
+    if not position:
+        raise ValueError("No position")
+
+    lx.eval(f'transform.channel pos.X {position.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel pos.Y {position.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel pos.Z {position.z} item:{{{item.id}}}')
+
+
+def item_set_rotation(item: Item, radians: Vector3):
+    if not item:
+        raise ValueError("No item")
+    if not radians:
+        raise ValueError("No rotation")
+
+    degrees = Vector3()
+    degrees.x = math.degrees(radians.x)
+    degrees.y = math.degrees(radians.y)
+    degrees.z = math.degrees(radians.z)
+
+    lx.eval(f'transform.channel rot.X {degrees.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel rot.Y {degrees.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel rot.Z {degrees.z} item:{{{item.id}}}')
+
+
+def item_set_scale(item: Item, scale: Vector3):
+    if not item:
+        raise ValueError("No item")
+    if not scale:
+        raise ValueError("No scale")
+
+    lx.eval(f'transform.channel scl.X {scale.x} item:{{{item.id}}}')
+    lx.eval(f'transform.channel scl.Y {scale.y} item:{{{item.id}}}')
+    lx.eval(f'transform.channel scl.Z {scale.z} item:{{{item.id}}}')
+
+
+def item_get_position(item: Item) -> Vector3:
+    if not item:
+        raise ValueError("No item")
+
+    transform = Vector3()
+    transform.x = lx.eval(f'transform.channel pos.X ? item:{{{item.id}}}')
+    transform.y = lx.eval(f"transform.channel pos.Y ? item:{{{item.id}}}")
+    transform.z = lx.eval(f"transform.channel pos.Z ? item:{{{item.id}}}")
+
+    return transform
+
+
+def item_get_rotation(item: Item) -> Vector3:
+    """Return item rotation triple in radians
+
+    Args:
+        item (Item): The item to which the rotation channel belongs
+
+    Raises:
+        ValueError: If no item provided
+
+    Returns:
+        Vector3: rotation values in radians
+    """
+    if not item:
+        raise ValueError("No item")
+
+    transform = Vector3()
+    transform.x = lx.eval(f'transform.channel rot.X ? item:{{{item.id}}}')
+    transform.y = lx.eval(f"transform.channel rot.Y ? item:{{{item.id}}}")
+    transform.z = lx.eval(f"transform.channel rot.Z ? item:{{{item.id}}}")
+
+    return transform
+
+
+def item_get_scale(item: Item) -> Vector3:
+    if not item:
+        raise ValueError("No item")
+
+    transform = Vector3()
+    transform.x = lx.eval(f'transform.channel scl.X ? item:{{{item.id}}}')
+    transform.y = lx.eval(f"transform.channel scl.Y ? item:{{{item.id}}}")
+    transform.z = lx.eval(f"transform.channel scl.Z ? item:{{{item.id}}}")
+
+    return transform
 
 
 def safe_type(item: Item):
     if item not in Scene().groups:
         return item.type
-    if item.type == "assembly":
+    if item.type == 'assembly':
         return item.type
-    if item.type == "":
-        return "group"
+    if item.type == '':
+        return 'group'
 
 
 def remove_if_exist(item: Item, children):
@@ -272,9 +378,9 @@ def remove_if_exist(item: Item, children):
 
 
 def is_material_ptyp(ptyp):
-    if ptyp == "Material":
+    if ptyp == 'Material':
         return True
-    if ptyp == "":
+    if ptyp == '':
         return True
 
     return False
@@ -302,7 +408,7 @@ def get_directory(
     title: Union[str, None], path: Union[str, None] = None
 ) -> Union[str, None]:
     if not title:
-        title = "Choose Directory"
+        title = 'Choose Directory'
 
     return dialogs.dirBrowse(title=title, path=path)
 

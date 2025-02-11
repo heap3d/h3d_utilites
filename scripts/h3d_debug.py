@@ -222,7 +222,7 @@ class H3dDebug:
             if var_name is None:
                 self.print_debug(variable, indent, forced)
             elif not var_string:
-                self.print_debug(f'<{var_name}> : <{variable}>', indent, forced)
+                self.print_debug(f'<{variable}>', indent, forced)
             else:
                 self.print_debug(f'<{var_string}> : <{variable}>', indent, forced)
 
