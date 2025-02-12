@@ -8,14 +8,17 @@
 # h3d utils
 
 from typing import Union, Any
+from enum import Enum, auto
 
 import lx
 from modo import Vector3, Item, Mesh, Scene, dialogs
 from modo.mathutils import math
+import modo.constants as c
 
 
 VERTEX_ZERO_NAME = 'vertex_ZERO'
 EMPTY_PTAG = 'Material'
+TMPROTLOC_NAME = 'tmplocal_rot_loc'
 
 
 def get_user_value(name: str) -> Any:
@@ -239,10 +242,10 @@ def itype_int(type_str: Union[str, None]) -> int:
 
 
 def item_move(item: Item, amount: Vector3):
-    if not item:
-        raise ValueError('No item')
-    if not amount:
-        raise ValueError('No amount')
+    if item is None:
+        raise ValueError('No item provided')
+    if amount is None:
+        raise ValueError('No amount provided')
 
     lx.eval(f'transform.channel pos.X ?+{amount.x} item:{{{item.id}}}')
     lx.eval(f'transform.channel pos.Y ?+{amount.y} item:{{{item.id}}}')
@@ -250,21 +253,56 @@ def item_move(item: Item, amount: Vector3):
 
 
 def item_rotate(item: Item, radians: Vector3):
-    if not item:
-        raise ValueError('No item')
-    if not radians:
-        raise ValueError('No amount')
+    if item is None:
+        raise ValueError('No item provided')
+    if radians is None:
+        raise ValueError('No amount provided')
 
     lx.eval(f'transform.channel rot.X ?+{radians.x} item:{{{item.id}}}')
     lx.eval(f'transform.channel rot.Y ?+{radians.y} item:{{{item.id}}}')
     lx.eval(f'transform.channel rot.Z ?+{radians.z} item:{{{item.id}}}')
 
 
+class Axis(Enum):
+    X = auto()
+    Y = auto()
+    Z = auto()
+
+
+def item_rotate_local(item: Item, radians: float, axis: Axis):
+    if item is None:
+        raise ValueError('No item provided')
+    if radians is None:
+        raise ValueError('No amount provided')
+    if axis is None:
+        raise ValueError('No axis provided')
+
+    tmploc = Scene().addItem(itype=c.LOCATOR_TYPE, name=TMPROTLOC_NAME)
+    item_parent = item.parent
+    item_parent_index = get_parent_index(item)
+    tmploc.setParent(item)
+    set_rotation_order(tmploc, axis)
+    parent_items_to([tmploc,], item.parent, item_parent_index)
+    parent_items_to([item,], tmploc)
+    lx.eval(f'transform.channel rot.{axis.name} ?+{radians} item:{{{tmploc.id}}}')
+    parent_items_to([item,], item_parent, item_parent_index)
+    Scene().removeItems(tmploc)
+
+
+def set_rotation_order(item: Item, axis: Axis):
+    command = {
+        Axis.X: 'xyz',
+        Axis.Y: 'yxz',
+        Axis.Z: 'zxy',
+    }
+    lx.eval(f'transform.channel order {command[axis]} item:{{{item.id}}}')
+
+
 def item_scale(item: Item, amount: Vector3):
-    if not item:
-        raise ValueError('No item')
-    if not amount:
-        raise ValueError('No amount')
+    if item is None:
+        raise ValueError('No item provided')
+    if amount is None:
+        raise ValueError('No amount provided')
 
     lx.eval(f'transform.channel scl.X ?+{amount.x} item:{{{item.id}}}')
     lx.eval(f'transform.channel scl.Y ?+{amount.y} item:{{{item.id}}}')
@@ -272,10 +310,10 @@ def item_scale(item: Item, amount: Vector3):
 
 
 def item_set_position(item: Item, position: Vector3):
-    if not item:
-        raise ValueError('No item')
-    if not position:
-        raise ValueError("No position")
+    if item is None:
+        raise ValueError('No item provided')
+    if position is None:
+        raise ValueError('No position provided')
 
     lx.eval(f'transform.channel pos.X {position.x} item:{{{item.id}}}')
     lx.eval(f'transform.channel pos.Y {position.y} item:{{{item.id}}}')
@@ -283,10 +321,10 @@ def item_set_position(item: Item, position: Vector3):
 
 
 def item_set_rotation(item: Item, radians: Vector3):
-    if not item:
-        raise ValueError("No item")
-    if not radians:
-        raise ValueError("No rotation")
+    if item is None:
+        raise ValueError('No item provided')
+    if radians is None:
+        raise ValueError('No rotation provided')
 
     degrees = Vector3()
     degrees.x = math.degrees(radians.x)
@@ -299,10 +337,10 @@ def item_set_rotation(item: Item, radians: Vector3):
 
 
 def item_set_scale(item: Item, scale: Vector3):
-    if not item:
-        raise ValueError("No item")
-    if not scale:
-        raise ValueError("No scale")
+    if item is None:
+        raise ValueError('No item provided')
+    if scale is None:
+        raise ValueError('No scale provided')
 
     lx.eval(f'transform.channel scl.X {scale.x} item:{{{item.id}}}')
     lx.eval(f'transform.channel scl.Y {scale.y} item:{{{item.id}}}')
@@ -310,13 +348,13 @@ def item_set_scale(item: Item, scale: Vector3):
 
 
 def item_get_position(item: Item) -> Vector3:
-    if not item:
-        raise ValueError("No item")
+    if item is None:
+        raise ValueError('No item provided')
 
     transform = Vector3()
     transform.x = lx.eval(f'transform.channel pos.X ? item:{{{item.id}}}')
-    transform.y = lx.eval(f"transform.channel pos.Y ? item:{{{item.id}}}")
-    transform.z = lx.eval(f"transform.channel pos.Z ? item:{{{item.id}}}")
+    transform.y = lx.eval(f'transform.channel pos.Y ? item:{{{item.id}}}')
+    transform.z = lx.eval(f'transform.channel pos.Z ? item:{{{item.id}}}')
 
     return transform
 
@@ -333,25 +371,25 @@ def item_get_rotation(item: Item) -> Vector3:
     Returns:
         Vector3: rotation values in radians
     """
-    if not item:
-        raise ValueError("No item")
+    if item is None:
+        raise ValueError('No item provided')
 
     transform = Vector3()
     transform.x = lx.eval(f'transform.channel rot.X ? item:{{{item.id}}}')
-    transform.y = lx.eval(f"transform.channel rot.Y ? item:{{{item.id}}}")
-    transform.z = lx.eval(f"transform.channel rot.Z ? item:{{{item.id}}}")
+    transform.y = lx.eval(f'transform.channel rot.Y ? item:{{{item.id}}}')
+    transform.z = lx.eval(f'transform.channel rot.Z ? item:{{{item.id}}}')
 
     return transform
 
 
 def item_get_scale(item: Item) -> Vector3:
-    if not item:
-        raise ValueError("No item")
+    if item is None:
+        raise ValueError('No item provided')
 
     transform = Vector3()
     transform.x = lx.eval(f'transform.channel scl.X ? item:{{{item.id}}}')
-    transform.y = lx.eval(f"transform.channel scl.Y ? item:{{{item.id}}}")
-    transform.z = lx.eval(f"transform.channel scl.Z ? item:{{{item.id}}}")
+    transform.y = lx.eval(f'transform.channel scl.Y ? item:{{{item.id}}}')
+    transform.z = lx.eval(f'transform.channel scl.Z ? item:{{{item.id}}}')
 
     return transform
 
