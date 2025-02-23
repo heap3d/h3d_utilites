@@ -115,7 +115,7 @@ class H3dDebug:
         else:
             for k in items:
                 if 'modo.item.' in str(type(k)):
-                    self.print_debug(f'<{k.name}> : <{safe_type(k)}>', indent=indent + 1)
+                    self.print_debug(f'<{k.name}>:<{safe_type(k)}>', indent=indent + 1)
                 else:
                     self.print_debug(f'<{k}>', indent=indent + 1)
 
@@ -224,7 +224,7 @@ class H3dDebug:
         try:
             _ = [i for i in variable]
         except TypeError:
-            self.print_debug(f'<{var_string}> : <{variable}>', indent)
+            self.print_debug(f'<{var_string}>:<{variable}>', indent)
         else:
             if not isinstance(variable, str):
                 self.print_items(variable, f'{var_name}:', indent, emptyline)
@@ -234,7 +234,7 @@ class H3dDebug:
             elif not var_string:
                 self.print_debug(f'<{variable}>', indent, forced)
             else:
-                self.print_debug(f'<{var_string}> : <{variable}>', indent, forced)
+                self.print_debug(f'<{var_string}>:<{variable}>', indent, forced)
 
 
 def get_variable_name(var) -> Union[str, None]:
