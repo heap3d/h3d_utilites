@@ -101,13 +101,23 @@ class H3dDebug:
                 self.print_debug('')
             return
 
-        for i in items:
-            if 'modo.item.' in str(type(i)):
-                self.print_debug(
-                    '<{}> : <{}>'.format(i.name, safe_type(i)), indent=indent + 1
-                )
-            else:
-                self.print_debug('<{}>'.format(i), indent=indent + 1)
+        if isinstance(items, dict):
+            for k, v in items.items():
+                if 'modo.item.' in str(type(k)):
+                    dict_key = f'<{k.name}>:<{safe_type(k)}>'
+                else:
+                    dict_key = f'<{k}>'
+                if 'modo.item.' in str(type(v)):
+                    dict_val = f'<{v.name}>:<{safe_type(v)}>'
+                else:
+                    dict_val = f'<{v}>'
+                self.print_debug(f'{dict_key} :: {dict_val}', indent=indent + 1)
+        else:
+            for k in items:
+                if 'modo.item.' in str(type(k)):
+                    self.print_debug(f'<{k.name}> : <{safe_type(k)}>', indent=indent + 1)
+                else:
+                    self.print_debug(f'<{k}>', indent=indent + 1)
 
         if emptyline:
             self.print_debug('')
