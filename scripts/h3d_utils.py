@@ -186,7 +186,7 @@ def get_mesh_bounding_box_size(mesh: Mesh):
     return v2 - v1
 
 
-def get_source_of_instance(item):
+def get_source_of_instance(item: Item) -> Union[None, Item]:
     if item is None:
         return None
     if not item.isAnInstance:
@@ -197,6 +197,8 @@ def get_source_of_instance(item):
     except LookupError:
         print('No source of instance item found for <{}>'.format(item.name))
         return None
+    if isinstance(item_source, list):
+        item_source = item_source[0]
     if item_source.isAnInstance:
         return get_source_of_instance(item_source)
 
