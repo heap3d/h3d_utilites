@@ -10,10 +10,10 @@
 import datetime
 import inspect
 import os.path
-from typing import Union
+from typing import Union, Sequence
 
 import lx
-from modo import Scene
+import modo
 
 from h3d_utilites.scripts.h3d_utils import replace_file_ext, safe_type
 
@@ -129,7 +129,7 @@ class H3dDebug:
         self.log_path = fullname
 
         if not self.log_path:
-            scene_path = Scene().filename
+            scene_path = modo.Scene().filename
             if not scene_path:
                 scene_path = get_log_default_path()
 
@@ -210,19 +210,22 @@ class H3dDebug:
 
         return public_members
 
-    def print_smart(self, variable, indent=0, emptyline=True, forced=False):
+    def print_smart(
+            self, variable: Union[None, int, float, Sequence, modo.Item],
+            indent=0, emptyline=True, forced=False
+            ):
         if not self.enable:
             return
         var_name = f'{get_variable_name_deep(variable)}'
         try:
-            item_name = f'{variable.name}'
+            item_name = f'{variable.name}'  # type: ignore
         except AttributeError:
             item_name = ''
 
         var_string = f'{item_name}'
 
         try:
-            _ = [i for i in variable]
+            _ = [i for i in variable]  # type: ignore
         except TypeError:
             self.print_debug(f'<{var_string}>:<{variable}>', indent)
         else:
@@ -270,7 +273,7 @@ def get_log_default_path() -> str:
 try:
     _ = h3dd  # type: ignore
 except NameError:
-    h3dd = H3dDebug(file=replace_file_ext(Scene().name, ".log"))
+    h3dd = H3dDebug(file=replace_file_ext(modo.Scene().name, ".log"))
     prints = h3dd.print_smart
     fn_in = h3dd.print_fn_in
     fn_out = h3dd.print_fn_out
