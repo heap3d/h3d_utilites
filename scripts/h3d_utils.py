@@ -510,6 +510,8 @@ def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> Item:
 
 
 def get_parent_index(item: Item) -> int:
+    if item is None:
+        return 0
     if index := item.parentIndex:
         return index
     if index := item.rootIndex:
