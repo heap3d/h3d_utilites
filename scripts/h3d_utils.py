@@ -7,7 +7,7 @@
 # EMAG
 # h3d utils
 
-from typing import Union, Any
+from typing import Union, Any, Iterable, Optional
 from enum import Enum, auto
 
 import lx
@@ -76,7 +76,7 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f'!user.defDelete {name}')
 
 
-def parent_items_to(items: list[Item], parent: Union[None, Item], index=0, inplace=True):
+def parent_items_to(items: Iterable[Item], parent: Optional[Item], index=0, inplace=True):
     """parent items to an parent item at specified index
 
     Args:

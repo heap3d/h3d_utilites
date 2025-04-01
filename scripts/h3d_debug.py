@@ -10,7 +10,7 @@
 import datetime
 import inspect
 import os.path
-from typing import Union, Sequence
+from typing import Union, Iterable
 
 import lx
 import modo
@@ -211,12 +211,14 @@ class H3dDebug:
         return public_members
 
     def print_smart(
-            self, variable: Union[None, int, float, Sequence, modo.Item],
+            self, variable: Union[None, int, float, Iterable, modo.Item, modo.Vector3],
             indent=0, emptyline=True, forced=False
             ):
         if not self.enable:
             return
         var_name = f'{get_variable_name_deep(variable)}'
+        if var_name is None:
+            var_name = f'{get_variable_name(variable)}'
         try:
             item_name = f'{variable.name}'  # type: ignore
         except AttributeError:
@@ -237,7 +239,7 @@ class H3dDebug:
             elif not var_string:
                 self.print_debug(f'<{variable}>', indent, forced)
             else:
-                self.print_debug(f'<{var_string}>:<{variable}>', indent, forced)
+                self.print_debug(f'<{var_name}>:<{var_string}>:<{variable}>', indent, forced)
 
 
 def get_variable_name(var) -> Union[str, None]:
