@@ -9,6 +9,7 @@
 
 from typing import Union, Any, Iterable, Optional
 from enum import Enum, auto
+import subprocess
 
 import lx
 from modo import Vector3, Item, Mesh, Scene, dialogs
@@ -597,3 +598,20 @@ def is_visible_alloff(item: Item) -> bool:
     visible = str(visible_channel.get())
 
     return visible == 'allOff'
+
+
+class TagSplit():
+    def __init__(self, text: str):
+        self.text = text
+
+    def split(self, sep: str) -> tuple[str, str]:
+        index = self.text.find(sep)
+
+        if index == -1:
+            return (self.text, '')
+
+        return (self.text[:index], self.text[index+len(sep):])
+
+
+def show_in_explorer(path: str):
+    subprocess.Popen(f'explorer /select,"{path}"')

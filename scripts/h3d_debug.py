@@ -11,11 +11,14 @@ import datetime
 import inspect
 import os.path
 from typing import Union, Iterable
+import subprocess
 
-import lx
 import modo
 
 from h3d_utilites.scripts.h3d_utils import replace_file_ext, safe_type
+
+
+DEFAULT_FOLDER = r'~\AppData\Roaming\Luxology\Temp'
 
 
 class H3dDebug:
@@ -133,7 +136,10 @@ class H3dDebug:
             if not scene_path:
                 scene_path = get_log_default_path()
 
-            scene_directory = os.path.dirname(scene_path)
+            if os.path.isfile(scene_path):
+                scene_directory = os.path.dirname(scene_path)
+            else:
+                scene_directory = scene_path
             self.log_path = os.path.join(scene_directory, shortname)
 
         if self.log_path.endswith('.lxo'):
@@ -229,7 +235,8 @@ class H3dDebug:
         try:
             _ = [i for i in variable]  # type: ignore
         except TypeError:
-            self.print_debug(f'<{var_string}>:<{variable}>', indent)
+            # self.print_debug(f'<{var_string}>:<{variable}>', indent)
+            self.print_debug(f'<{var_name}>:<{variable}>', indent)
         else:
             if not isinstance(variable, str):
                 self.print_items(variable, f'{var_name}:', indent, emptyline)
@@ -240,6 +247,11 @@ class H3dDebug:
                 self.print_debug(f'<{variable}>', indent, forced)
             else:
                 self.print_debug(f'<{var_name}>:<{var_string}>:<{variable}>', indent, forced)
+
+    def show_log_in_explorer(self):
+        if not self.enable:
+            return
+        subprocess.Popen(f'explorer /select,"{self.log_path}"')
 
 
 def get_variable_name(var) -> Union[str, None]:
@@ -267,8 +279,9 @@ def get_variable_name_deep(var) -> Union[str, None]:
 
 
 def get_log_default_path() -> str:
-    # permission error
-    scene_path = str(lx.eval('preset.project.values ?exportPath'))
+    scene_path = os.path.expanduser(DEFAULT_FOLDER)
+    if not os.path.exists(scene_path):
+        os.makedirs(scene_path)
     return scene_path
 
 
