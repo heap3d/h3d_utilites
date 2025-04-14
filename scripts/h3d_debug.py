@@ -94,10 +94,15 @@ class H3dDebug:
     def print_items(self, items, message=None, indent=0, emptyline=True):
         if not self.enable:
             return
+
+        if emptyline:
+            self.print_debug('')
+
         if message:
             self.print_debug(message + f' ({len(items)})', indent=indent)
         else:
             self.print_debug(f'{len(items)} items:', indent=indent)
+
         if not items:
             self.print_debug(items, indent=indent + 1)
             if emptyline:
