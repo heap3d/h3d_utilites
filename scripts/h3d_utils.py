@@ -613,5 +613,5 @@ class TagSplit():
         return (self.text[:index], self.text[index+len(sep):])
 
 
-def show_in_explorer(path: str):
+def reveal_in_explorer(path: str):
     subprocess.Popen(f'explorer /select,"{path}"')
