@@ -615,3 +615,22 @@ class TagSplit():
 
 def reveal_in_explorer(path: str):
     subprocess.Popen(f'explorer /select,"{path}"')
+
+
+def get_select_type():
+    if lx.eval('select.typeFrom item;pivot;center;edge;polygon;vertex;ptag ?'):
+        return 'item'
+    if lx.eval('select.typeFrom pivot;center;edge;polygon;vertex;ptag;item ?'):
+        return 'pivot'
+    if lx.eval('select.typeFrom center;edge;polygon;vertex;ptag;item;pivot ?'):
+        return 'center'
+    if lx.eval('select.typeFrom edge;polygon;vertex;ptag;item;pivot;center ?'):
+        return 'edge'
+    if lx.eval('select.typeFrom polygon;vertex;ptag;item;pivot;center;edge ?'):
+        return 'polygon'
+    if lx.eval('select.typeFrom vertex;ptag;item;pivot;center;edge;polygon ?'):
+        return 'vertex'
+    if lx.eval('select.typeFrom ptag;item;pivot;center;edge;polygon;vertex ?'):
+        return 'ptag'
+
+    return ''
