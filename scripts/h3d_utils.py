@@ -21,6 +21,14 @@ VERTEX_ZERO_NAME = 'vertex_ZERO'
 EMPTY_PTAG = 'Material'
 TMPROTLOC_NAME = 'tmplocal_rot_loc'
 
+ITEM = 'item'
+PIVOT = 'pivot'
+CENTER = 'center'
+VERTEX = 'vertex'
+EDGE = 'edge'
+POLYGON = 'polygon'
+PTAG = 'ptag'
+
 
 def get_user_value(name: str) -> Any:
     """gets user value by name
@@ -619,18 +627,43 @@ def reveal_in_explorer(path: str):
 
 def get_select_type():
     if lx.eval('select.typeFrom item;pivot;center;edge;polygon;vertex;ptag ?'):
-        return 'item'
+        return ITEM
     if lx.eval('select.typeFrom pivot;center;edge;polygon;vertex;ptag;item ?'):
-        return 'pivot'
+        return PIVOT
     if lx.eval('select.typeFrom center;edge;polygon;vertex;ptag;item;pivot ?'):
-        return 'center'
-    if lx.eval('select.typeFrom edge;polygon;vertex;ptag;item;pivot;center ?'):
-        return 'edge'
-    if lx.eval('select.typeFrom polygon;vertex;ptag;item;pivot;center;edge ?'):
-        return 'polygon'
+        return CENTER
     if lx.eval('select.typeFrom vertex;ptag;item;pivot;center;edge;polygon ?'):
-        return 'vertex'
+        return VERTEX
+    if lx.eval('select.typeFrom edge;polygon;vertex;ptag;item;pivot;center ?'):
+        return EDGE
+    if lx.eval('select.typeFrom polygon;vertex;ptag;item;pivot;center;edge ?'):
+        return POLYGON
     if lx.eval('select.typeFrom ptag;item;pivot;center;edge;polygon;vertex ?'):
-        return 'ptag'
+        return PTAG
 
-    return ''
+    raise ValueError('Unknown select type')
+
+
+def get_instances(item: Item) -> list[Item]:
+    instances = item.itemGraph('source').reverse()
+    if not isinstance(instances, list):
+        raise ValueError(f'Error getting instances for the <{item.name}> item')
+    return instances
+
+
+def make_instance(item: Item) -> Item:
+    item.select(replace=True)
+    lx.eval('item.duplicate true all:true')
+    newitem = Scene().selected[0]
+    return newitem
+
+
+def duplicate_item(item: Item) -> Item:
+    if not item:
+        raise TypeError('No item provided.')
+
+    copy = Scene().duplicateItem(item)
+    if not copy:
+        raise TypeError('Item duplication error.')
+
+    return copy
