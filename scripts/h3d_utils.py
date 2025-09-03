@@ -258,9 +258,9 @@ def item_move(item: Item, amount: Vector3):
     if amount is None:
         raise ValueError('No amount provided')
 
-    lx.eval(f'transform.channel pos.X ?+{amount.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel pos.Y ?+{amount.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel pos.Z ?+{amount.z} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel pos.X ?+{amount.x} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel pos.Y ?+{amount.y} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel pos.Z ?+{amount.z} item:{{{item.id}}}')
 
 
 def item_rotate(item: Item, radians: Vector3):
@@ -269,9 +269,9 @@ def item_rotate(item: Item, radians: Vector3):
     if radians is None:
         raise ValueError('No amount provided')
 
-    lx.eval(f'transform.channel rot.X ?+{radians.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel rot.Y ?+{radians.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel rot.Z ?+{radians.z} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel rot.X ?+{radians.x} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel rot.Y ?+{radians.y} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel rot.Z ?+{radians.z} item:{{{item.id}}}')
 
 
 class Axis(Enum):
@@ -295,9 +295,16 @@ def item_rotate_local(item: Item, radians: float, axis: Axis):
     set_rotation_order(tmploc, axis)
     parent_items_to([tmploc,], item.parent, item_parent_index)
     parent_items_to([item,], tmploc)
-    lx.eval(f'transform.channel rot.{axis.name} ?+{radians} item:{{{tmploc.id}}}')
-    parent_items_to([item,], item_parent, item_parent_index)
-    Scene().removeItems(tmploc)
+
+    try:
+        lx.eval(f'!transform.channel rot.{axis.name} ?+{radians} item:{{{tmploc.id}}}')
+        parent_items_to([item,], item_parent, item_parent_index)
+
+    except RuntimeError:
+        print(f'Error rotating item <{item.name}>')
+
+    finally:
+        Scene().removeItems(tmploc)
 
 
 def set_rotation_order(item: Item, axis: Axis):
@@ -306,7 +313,7 @@ def set_rotation_order(item: Item, axis: Axis):
         Axis.Y: 'yxz',
         Axis.Z: 'zxy',
     }
-    lx.eval(f'transform.channel order {command[axis]} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel order {command[axis]} item:{{{item.id}}}')
 
 
 def item_scale(item: Item, amount: Vector3):
@@ -315,9 +322,9 @@ def item_scale(item: Item, amount: Vector3):
     if amount is None:
         raise ValueError('No amount provided')
 
-    lx.eval(f'transform.channel scl.X ?+{amount.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel scl.Y ?+{amount.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel scl.Z ?+{amount.z} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel scl.X ?+{amount.x} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel scl.Y ?+{amount.y} item:{{{item.id}}}')
+    lx.eval(f'!transform.channel scl.Z ?+{amount.z} item:{{{item.id}}}')
 
 
 def item_set_position(item: Item, position: Vector3):
@@ -326,9 +333,13 @@ def item_set_position(item: Item, position: Vector3):
     if position is None:
         raise ValueError('No position provided')
 
-    lx.eval(f'transform.channel pos.X {position.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel pos.Y {position.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel pos.Z {position.z} item:{{{item.id}}}')
+    try:
+        lx.eval(f'!transform.channel pos.X {position.x} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel pos.Y {position.y} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel pos.Z {position.z} item:{{{item.id}}}')
+
+    except RuntimeError:
+        print(f'Warning: Failed to set position to <{item.name}>')
 
 
 def item_set_rotation(item: Item, radians: Vector3):
@@ -342,9 +353,13 @@ def item_set_rotation(item: Item, radians: Vector3):
     degrees.y = math.degrees(radians.y)
     degrees.z = math.degrees(radians.z)
 
-    lx.eval(f'transform.channel rot.X {degrees.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel rot.Y {degrees.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel rot.Z {degrees.z} item:{{{item.id}}}')
+    try:
+        lx.eval(f'!transform.channel rot.X {degrees.x} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel rot.Y {degrees.y} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel rot.Z {degrees.z} item:{{{item.id}}}')
+
+    except RuntimeError:
+        print(f'Warning: Failed to set rotation to <{item.name}>')
 
 
 def item_set_scale(item: Item, scale: Vector3):
@@ -353,9 +368,13 @@ def item_set_scale(item: Item, scale: Vector3):
     if scale is None:
         raise ValueError('No scale provided')
 
-    lx.eval(f'transform.channel scl.X {scale.x} item:{{{item.id}}}')
-    lx.eval(f'transform.channel scl.Y {scale.y} item:{{{item.id}}}')
-    lx.eval(f'transform.channel scl.Z {scale.z} item:{{{item.id}}}')
+    try:
+        lx.eval(f'!transform.channel scl.X {scale.x} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel scl.Y {scale.y} item:{{{item.id}}}')
+        lx.eval(f'!transform.channel scl.Z {scale.z} item:{{{item.id}}}')
+
+    except RuntimeError:
+        print(f'Warning: Failed to set scale to <{item.name}>')
 
 
 def item_get_position(item: Item) -> Vector3:
