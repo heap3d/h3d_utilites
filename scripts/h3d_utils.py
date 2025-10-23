@@ -672,7 +672,14 @@ def get_instances(item: Item) -> list[Item]:
 
 def make_instance(item: Item) -> Item:
     item.select(replace=True)
-    lx.eval('item.duplicate true all:true')
+    lx.eval('item.duplicate instance:true all:true')
+    newitem = Scene().selected[0]
+    return newitem
+
+
+def duplicate_item_and_hierarchy(item: Item) -> Item:
+    item.select(replace=True)
+    lx.eval('item.duplicate instance:false all:true')
     newitem = Scene().selected[0]
     return newitem
 
