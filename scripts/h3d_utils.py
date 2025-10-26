@@ -12,7 +12,8 @@ from enum import Enum, auto
 import subprocess
 
 import lx
-from modo import Vector3, Item, Mesh, Scene, dialogs
+import modo
+from modo import Vector3
 from modo.mathutils import math
 import modo.constants as c
 
@@ -85,7 +86,7 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f'!user.defDelete {name}')
 
 
-def parent_items_to(items: Iterable[Item], parent: Optional[Item], index=0, inplace=True):
+def parent_items_to(items: Iterable[modo.Item], parent: Optional[modo.Item], index=0, inplace=True):
     """parent items to an parent item at specified index
 
     Args:
@@ -134,7 +135,7 @@ def get_mesh_debug_info(mesh):
     return lx.eval('item.tag string DESC ?')
 
 
-def set_description_tag(item: Item, text: str) -> None:
+def set_description_tag(item: modo.Item, text: str) -> None:
     """set description tag for specified item
 
     Args:
@@ -146,7 +147,7 @@ def set_description_tag(item: Item, text: str) -> None:
     lx.eval('item.tag string DESC "{}"'.format(text))
 
 
-def get_description_tag(item: Item) -> str:
+def get_description_tag(item: modo.Item) -> str:
     """get description tag for specified item
 
     Args:
@@ -185,7 +186,7 @@ def merge_two_meshes(mesh1, mesh2):
     lx.eval('layer.mergeMeshes true')
 
 
-def get_mesh_bounding_box_size(mesh: Mesh):
+def get_mesh_bounding_box_size(mesh: modo.Mesh):
     if not mesh:
         return Vector3()
     if not mesh.geometry.polygons:
@@ -195,7 +196,7 @@ def get_mesh_bounding_box_size(mesh: Mesh):
     return v2 - v1
 
 
-def get_source_of_instance(item: Item) -> Union[None, Item]:
+def get_source_of_instance(item: modo.Item) -> Union[None, modo.Item]:
     if item is None:
         return None
     if not item.isAnInstance:
@@ -252,7 +253,7 @@ def itype_int(type_str: Union[str, None]) -> int:
     return int_type
 
 
-def item_move(item: Item, amount: Vector3):
+def item_move(item: modo.Item, amount: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if amount is None:
@@ -263,7 +264,7 @@ def item_move(item: Item, amount: Vector3):
     lx.eval(f'!transform.channel pos.Z ?+{amount.z} item:{{{item.id}}}')
 
 
-def item_rotate(item: Item, radians: Vector3):
+def item_rotate(item: modo.Item, radians: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -280,7 +281,7 @@ class Axis(Enum):
     Z = auto()
 
 
-def item_rotate_local(item: Item, radians: float, axis: Axis):
+def item_rotate_local(item: modo.Item, radians: float, axis: Axis):
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -288,7 +289,7 @@ def item_rotate_local(item: Item, radians: float, axis: Axis):
     if axis is None:
         raise ValueError('No axis provided')
 
-    tmploc = Scene().addItem(itype=c.LOCATOR_TYPE, name=TMPROTLOC_NAME)
+    tmploc = modo.Scene().addItem(itype=c.LOCATOR_TYPE, name=TMPROTLOC_NAME)
     item_parent = item.parent
     item_parent_index = get_parent_index(item)
     tmploc.setParent(item)
@@ -304,10 +305,10 @@ def item_rotate_local(item: Item, radians: float, axis: Axis):
         print(f'Error rotating item <{item.name}>')
 
     finally:
-        Scene().removeItems(tmploc)
+        modo.Scene().removeItems(tmploc)
 
 
-def set_rotation_order(item: Item, axis: Axis):
+def set_rotation_order(item: modo.Item, axis: Axis):
     command = {
         Axis.X: 'xyz',
         Axis.Y: 'yxz',
@@ -316,7 +317,7 @@ def set_rotation_order(item: Item, axis: Axis):
     lx.eval(f'!transform.channel order {command[axis]} item:{{{item.id}}}')
 
 
-def item_scale(item: Item, amount: Vector3):
+def item_scale(item: modo.Item, amount: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if amount is None:
@@ -327,7 +328,7 @@ def item_scale(item: Item, amount: Vector3):
     lx.eval(f'!transform.channel scl.Z ?+{amount.z} item:{{{item.id}}}')
 
 
-def item_set_position(item: Item, position: Vector3):
+def item_set_position(item: modo.Item, position: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if position is None:
@@ -342,7 +343,7 @@ def item_set_position(item: Item, position: Vector3):
         print(f'Warning: Failed to set position to <{item.name}>')
 
 
-def item_set_rotation(item: Item, radians: Vector3):
+def item_set_rotation(item: modo.Item, radians: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -362,7 +363,7 @@ def item_set_rotation(item: Item, radians: Vector3):
         print(f'Warning: Failed to set rotation to <{item.name}>')
 
 
-def item_set_scale(item: Item, scale: Vector3):
+def item_set_scale(item: modo.Item, scale: Vector3):
     if item is None:
         raise ValueError('No item provided')
     if scale is None:
@@ -377,7 +378,7 @@ def item_set_scale(item: Item, scale: Vector3):
         print(f'Warning: Failed to set scale to <{item.name}>')
 
 
-def item_get_position(item: Item) -> Vector3:
+def item_get_position(item: modo.Item) -> Vector3:
     if item is None:
         raise ValueError('No item provided')
 
@@ -389,7 +390,7 @@ def item_get_position(item: Item) -> Vector3:
     return transform
 
 
-def item_get_rotation(item: Item) -> Vector3:
+def item_get_rotation(item: modo.Item) -> Vector3:
     """Return item rotation triple in radians
 
     Args:
@@ -412,7 +413,7 @@ def item_get_rotation(item: Item) -> Vector3:
     return transform
 
 
-def item_get_scale(item: Item) -> Vector3:
+def item_get_scale(item: modo.Item) -> Vector3:
     if item is None:
         raise ValueError('No item provided')
 
@@ -424,8 +425,8 @@ def item_get_scale(item: Item) -> Vector3:
     return transform
 
 
-def safe_type(item: Item):
-    if item not in Scene().groups:
+def safe_type(item: modo.Item):
+    if item not in modo.Scene().groups:
         return item.type
     if item.type == 'assembly':
         return item.type
@@ -433,12 +434,12 @@ def safe_type(item: Item):
         return 'group'
 
 
-def remove_if_exist(item: Item, children):
+def remove_if_exist(item: modo.Item, children):
     if not item:
         return False
     try:
-        Scene().item(item.id)
-        Scene().removeItems(item, children)
+        modo.Scene().item(item.id)
+        modo.Scene().removeItems(item, children)
     except LookupError:
         return False
 
@@ -478,7 +479,7 @@ def get_directory(
     if not title:
         title = 'Choose Directory'
 
-    return dialogs.dirBrowse(title=title, path=path)
+    return modo.dialogs.dirBrowse(title=title, path=path)
 
 
 def is_preset_browser_opened() -> bool:
@@ -510,8 +511,8 @@ def switch_preset_browser():
     display_preset_browser(not is_preset_browser_opened())
 
 
-def create_vertex_at_zero(name: str) -> Item:
-    vertex_zero_mesh = Scene().addMesh(name)
+def create_vertex_at_zero(name: str) -> modo.Item:
+    vertex_zero_mesh = modo.Scene().addMesh(name)
     vertex_zero_mesh.select(replace=True)
     lx.eval('tool.set prim.makeVertex on 0')
     lx.eval('tool.attr prim.makeVertex cenX 0.0')
@@ -522,22 +523,22 @@ def create_vertex_at_zero(name: str) -> Item:
     return vertex_zero_mesh
 
 
-def replicator_link_prototype(item: Item, replicator: Item) -> None:
+def replicator_link_prototype(item: modo.Item, replicator: modo.Item) -> None:
     lx.eval(f'item.link particle.proto {{{item.id}}} {{{replicator.id}}} replace:true')
 
 
-def replicator_link_point_source(item: Item, replicator: Item) -> None:
+def replicator_link_point_source(item: modo.Item, replicator: modo.Item) -> None:
     lx.eval(f'item.link particle.source {{{item.id}}} {{{replicator.id}}} posT:0 replace:true')
 
 
-def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> Item:
+def get_vertex_zero(name: str = VERTEX_ZERO_NAME) -> modo.Item:
     try:
-        return Scene().item(name)
+        return modo.Scene().item(name)
     except LookupError:
         return create_vertex_at_zero(name)
 
 
-def get_parent_index(item: Item) -> int:
+def get_parent_index(item: modo.Item) -> int:
     if item is None:
         return 0
     if index := item.parentIndex:
@@ -547,16 +548,16 @@ def get_parent_index(item: Item) -> int:
     return 0
 
 
-def match_pos_rot(item: Item, itemTo: Item):
+def match_pos_rot(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def match_scl(item: Item, itemTo: Item):
+def match_scl(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def is_visible(item: Item) -> bool:
+def is_visible(item: modo.Item) -> bool:
     if not is_local_visible(item):
         return False
 
@@ -570,7 +571,7 @@ def is_visible(item: Item) -> bool:
     return True
 
 
-def is_local_visible(item: Item) -> bool:
+def is_local_visible(item: modo.Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -587,7 +588,7 @@ def is_local_visible(item: Item) -> bool:
     return result
 
 
-def is_visible_default(item: Item) -> bool:
+def is_visible_default(item: modo.Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -597,7 +598,7 @@ def is_visible_default(item: Item) -> bool:
     return visible == 'default'
 
 
-def is_visible_on(item: Item) -> bool:
+def is_visible_on(item: modo.Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -607,7 +608,7 @@ def is_visible_on(item: Item) -> bool:
     return visible == 'on'
 
 
-def is_visible_off(item: Item) -> bool:
+def is_visible_off(item: modo.Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -617,7 +618,7 @@ def is_visible_off(item: Item) -> bool:
     return visible == 'off'
 
 
-def is_visible_alloff(item: Item) -> bool:
+def is_visible_alloff(item: modo.Item) -> bool:
     visible_channel = item.channel('visible')
     if not visible_channel:
         return False
@@ -663,33 +664,87 @@ def get_select_type():
     raise ValueError('Unknown select type')
 
 
-def get_instances(item: Item) -> list[Item]:
+def get_instances(item: modo.Item) -> list[modo.Item]:
+    """ Gets list of instances for provided item
+
+    Args:
+        item (modo.Item): _description_Item to get instances for.
+
+    Raises:
+        ValueError: Error getting instances.
+
+    Returns:
+        list[modo.Item]: List of item instances.
+    """
     instances = item.itemGraph('source').reverse()
     if not isinstance(instances, list):
         raise ValueError(f'Error getting instances for the <{item.name}> item')
     return instances
 
 
-def make_instance(item: Item) -> Item:
-    item.select(replace=True)
-    lx.eval('item.duplicate instance:true all:true')
-    newitem = Scene().selected[0]
-    return newitem
+def duplicate_item(item: modo.Item) -> modo.Item:
+    """ Duplicates item without hierarchy.
 
+    Args:
+        item (modo.Item): item to duplicate.
 
-def duplicate_item_and_hierarchy(item: Item) -> Item:
-    item.select(replace=True)
-    lx.eval('item.duplicate instance:false all:true')
-    newitem = Scene().selected[0]
-    return newitem
+    Raises:
+        TypeError: Item duplication error.
 
-
-def duplicate_item(item: Item) -> Item:
-    if not item:
-        raise TypeError('No item provided.')
-
-    copy = Scene().duplicateItem(item)
+    Returns:
+        modo.Item: Item copy without hierarchy.
+    """
+    copy = modo.Scene().duplicateItem(item)
     if not copy:
         raise TypeError('Item duplication error.')
 
     return copy
+
+
+def duplicate_item_with_hierarchy(item: modo.Item) -> modo.Item:
+    """ Makes item copy including its hierarchy.
+
+    Args:
+        item (modo.Item): Item to duplicate.
+
+    Returns:
+        modo.Item: Item copy including its hierarchy.
+    """
+    item.select(replace=True)
+    lx.eval('item.duplicate instance:false all:true')
+    newitem = modo.Scene().selected[0]
+    return newitem
+
+
+def make_instance(item: modo.Item) -> modo.Item:
+    """ Instantiates item without hierarchy.
+
+    Args:
+        item (modo.Item): Item to instantiate.
+
+    Raises:
+        TypeError: Item duplication error.
+
+    Returns:
+        modo.Item: Item instance without hierarchy.
+    """
+    copy = modo.Scene().duplicateItem(item, instance=True)
+    if not copy:
+        raise TypeError('Item duplication error.')
+
+    return copy
+
+
+def make_instance_with_hierarchy(item: modo.Item) -> modo.Item:
+    """ Makes item instance including its hierarchy.
+
+    Args:
+        item (modo.Item): Item to instantiate.
+
+    Returns:
+        modo.Item: Item instance including its hierarchy.
+    """
+    item.select(replace=True)
+    lx.eval('item.duplicate instance:true all:true')
+    newitem = modo.Scene().selected[0]
+    return newitem
