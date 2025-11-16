@@ -756,3 +756,20 @@ def make_instance_with_hierarchy(item: modo.Item) -> modo.Item:
     lx.eval('item.duplicate instance:true all:true')
     newitem = modo.Scene().selected[0]
     return newitem
+
+
+def select_if_exists(items: Iterable[modo.Item]):
+    """ Selects items if they exist in the scene.
+    Args:
+        items (Iterable[modo.Item]): Items to select.
+    """
+
+    if not items:
+        return
+
+    modo.Scene().deselect()
+    for item in items:
+        try:
+            item.select()
+        except (LookupError, AttributeError):
+            pass
