@@ -553,6 +553,14 @@ def match_pos_rot(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
+def match_pos(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+
+
+def match_rot(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+
+
 def match_scl(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
