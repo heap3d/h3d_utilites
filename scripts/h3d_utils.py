@@ -553,6 +553,14 @@ def match_pos_rot(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
+def match_pos(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+
+
+def match_rot(item: modo.Item, itemTo: modo.Item):
+    lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
+
+
 def match_scl(item: modo.Item, itemTo: modo.Item):
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
@@ -748,3 +756,20 @@ def make_instance_with_hierarchy(item: modo.Item) -> modo.Item:
     lx.eval('item.duplicate instance:true all:true')
     newitem = modo.Scene().selected[0]
     return newitem
+
+
+def select_if_exists(items: Iterable[modo.Item]):
+    """ Selects items if they exist in the scene.
+    Args:
+        items (Iterable[modo.Item]): Items to select.
+    """
+
+    if not items:
+        return
+
+    modo.Scene().deselect()
+    for item in items:
+        try:
+            item.select()
+        except (LookupError, AttributeError):
+            pass
