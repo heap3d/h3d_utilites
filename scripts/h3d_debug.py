@@ -231,7 +231,7 @@ class H3dDebug:
         if var_name is None:
             var_name = f'{get_variable_name(variable)}'
         try:
-            item_name = f'{variable.name}'  # type: ignore
+            item_name = f'<{variable.name}>:'  # type: ignore
         except AttributeError:
             item_name = ''
 
@@ -241,7 +241,7 @@ class H3dDebug:
             _ = [i for i in variable]  # type: ignore
         except TypeError:
             # self.print_debug(f'<{var_string}>:<{variable}>', indent)
-            self.print_debug(f'<{var_name}>:<{variable}>', indent)
+            self.print_debug(f'{var_string}<{var_name}>:<{variable}>', indent)
         else:
             if not isinstance(variable, str):
                 self.print_items(variable, f'{var_name}:', indent, emptyline)
