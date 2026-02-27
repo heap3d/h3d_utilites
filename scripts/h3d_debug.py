@@ -231,31 +231,37 @@ class H3dDebug:
         if var_name is None:
             var_name = f'{get_variable_name(variable)}'
         try:
-            item_name = f'<{variable.name}>:'  # type: ignore
+            item_name = f'<{variable.name}>'  # type: ignore
         except AttributeError:
             item_name = ''
 
         var_string = f'{item_name}'
 
         try:
+            variable_type = variable.type
+        except AttributeError:
+            variable_type = type(variable)
+
+        try:
             _ = [i for i in variable]  # type: ignore
         except TypeError:
-            # self.print_debug(f'<{var_string}>:<{variable}>', indent)
-            self.print_debug(f'{var_string}<{var_name}>:<{variable}>', indent)
+            self.print_debug(f'var<{var_name}>:{var_string}:<{variable}>:<{variable_type}>', indent)
         else:
             if not isinstance(variable, str):
-                self.print_items(variable, f'{var_name}:', indent, emptyline)
+                self.print_items(variable, f'var<{var_name}>:', indent, emptyline)
                 return
+
             if var_name is None:
                 self.print_debug(variable, indent, forced)
             elif not var_string:
                 self.print_debug(f'<{variable}>', indent, forced)
             else:
-                self.print_debug(f'<{var_name}>:<{var_string}>:<{variable}>', indent, forced)
+                self.print_debug(f'var<{var_name}>:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
 
     def show_log_in_explorer(self):
         if not self.enable:
             return
+
         subprocess.Popen(f'explorer /select,"{self.log_path}"')
 
 
@@ -265,8 +271,10 @@ def get_variable_name(var) -> Union[str, None]:
         frame_locals = current_frame.f_back.f_locals  # type: ignore
         var_name = [name for name, value in frame_locals.items() if value is var][0]
         return var_name
+
     except IndexError:
         return None
+
     finally:
         del current_frame
 
@@ -277,8 +285,10 @@ def get_variable_name_deep(var) -> Union[str, None]:
         frame_locals = current_frame.f_back.f_back.f_locals  # type: ignore
         var_name = [name for name, value in frame_locals.items() if value is var][0]
         return var_name
+
     except IndexError:
         return None
+
     finally:
         del current_frame
 
