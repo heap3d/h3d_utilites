@@ -238,7 +238,7 @@ class H3dDebug:
         var_string = f'{item_name}'
 
         try:
-            variable_type = variable.type
+            variable_type = variable.type  # type: ignore
         except AttributeError:
             variable_type = type(variable)
 
