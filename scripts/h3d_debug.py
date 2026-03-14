@@ -259,11 +259,20 @@ class H3dDebug:
                 return
 
             if var_name is None:
-                self.print_debug(variable, indent, forced)
+                if label:
+                    self.print_debug(f'{label}:<{variable}>', indent, forced)
+                else:
+                    self.print_debug(variable, indent, forced)
             elif not var_string:
-                self.print_debug(f'<{variable}>', indent, forced)
+                if label:
+                    self.print_debug(f'{label}:<{variable}>', indent, forced)
+                else:
+                    self.print_debug(f'<{variable}>', indent, forced)
             else:
-                self.print_debug(f'var<{var_name}>:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
+                if label:
+                    self.print_debug(f'{label}:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
+                else:
+                    self.print_debug(f'var<{var_name}>:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
 
     def show_log_in_explorer(self):
         if not self.enable:
