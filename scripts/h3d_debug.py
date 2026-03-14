@@ -222,8 +222,12 @@ class H3dDebug:
         return public_members
 
     def print_smart(
-            self, variable: Union[None, int, float, Iterable, modo.Item, modo.Vector3],
-            indent=0, emptyline=True, forced=False
+            self,
+            variable: Union[None, int, float, Iterable, modo.Item, modo.Vector3],
+            indent=0,
+            emptyline=True,
+            forced=False,
+            label=None,
             ):
         if not self.enable:
             return
@@ -248,7 +252,10 @@ class H3dDebug:
             self.print_debug(f'var<{var_name}>:{var_string}:<{variable}>:<{variable_type}>', indent)
         else:
             if not isinstance(variable, str):
-                self.print_items(variable, f'var<{var_name}>:', indent, emptyline)
+                if label:
+                    self.print_items(variable, f'{label}:', indent, emptyline)
+                else:
+                    self.print_items(variable, f'var<{var_name}>:', indent, emptyline)
                 return
 
             if var_name is None:
