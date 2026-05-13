@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # ================================
-# (C)2022-2025 Dmytro Holub
+# (C)2022-2026 Dmytro Holub
 # heap3d@gmail.com
 # --------------------------------
 # modo python
@@ -22,13 +22,15 @@ VERTEX_ZERO_NAME = 'vertex_ZERO'
 EMPTY_PTAG = 'Material'
 TMPROTLOC_NAME = 'tmplocal_rot_loc'
 
-ITEM = 'item'
-PIVOT = 'pivot'
-CENTER = 'center'
-VERTEX = 'vertex'
-EDGE = 'edge'
-POLYGON = 'polygon'
-PTAG = 'ptag'
+
+class SELECTION_MODE(Enum):
+    ITEM = 'item'
+    PIVOT = 'pivot'
+    CENTER = 'center'
+    VERTEX = 'vertex'
+    EDGE = 'edge'
+    POLYGON = 'polygon'
+    PTAG = 'ptag'
 
 
 def get_user_value(name: str) -> Any:
@@ -653,23 +655,40 @@ def reveal_in_explorer(path: str):
     subprocess.Popen(f'explorer /select,"{path}"')
 
 
-def get_select_type():
+def get_selection_mode() -> str:
     if lx.eval('select.typeFrom item;pivot;center;edge;polygon;vertex;ptag ?'):
-        return ITEM
+        return SELECTION_MODE.ITEM.value
+    if lx.eval('select.typeFrom pivot;item;center;edge;polygon;vertex;ptag ?'):
+        return SELECTION_MODE.PIVOT.value
     if lx.eval('select.typeFrom pivot;center;edge;polygon;vertex;ptag;item ?'):
-        return PIVOT
+        return SELECTION_MODE.PIVOT.value
     if lx.eval('select.typeFrom center;edge;polygon;vertex;ptag;item;pivot ?'):
-        return CENTER
+        return SELECTION_MODE.CENTER.value
     if lx.eval('select.typeFrom vertex;ptag;item;pivot;center;edge;polygon ?'):
-        return VERTEX
+        return SELECTION_MODE.VERTEX.value
     if lx.eval('select.typeFrom edge;polygon;vertex;ptag;item;pivot;center ?'):
-        return EDGE
+        return SELECTION_MODE.EDGE.value
     if lx.eval('select.typeFrom polygon;vertex;ptag;item;pivot;center;edge ?'):
-        return POLYGON
+        return SELECTION_MODE.POLYGON.value
     if lx.eval('select.typeFrom ptag;item;pivot;center;edge;polygon;vertex ?'):
-        return PTAG
+        return SELECTION_MODE.PTAG.value
 
     raise ValueError('Unknown select type')
+
+
+def set_selection_mode(select_type: str):
+    """ set selection type for modo from SELECT_TYPES dataclass
+
+    Args:
+        select_type (str): select type to set
+
+    Raises:
+        ValueError: if select type is not in SELECT_TYPES dataclass
+    """
+    if select_type not in [field.value for field in SELECTION_MODE]:
+        raise ValueError(f'Invalid select type: {select_type}')
+
+    lx.eval(f'select.type {select_type}')
 
 
 def get_instances(item: modo.Item) -> list[modo.Item]:
