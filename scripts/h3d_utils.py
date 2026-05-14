@@ -42,6 +42,7 @@ def get_user_value(name: str) -> Any:
     Returns:
         Any: user value
     """
+
     value = lx.eval('user.value {} ?'.format(name))
     return value
 
@@ -53,6 +54,7 @@ def set_user_value(name: str, value: Any) -> None:
         name (str): user value name
         value (Any): value to set
     """
+
     lx.eval('user.value {} {{{}}}'.format(name, value))
 
 
@@ -65,6 +67,7 @@ def is_defined_user_value(name: str) -> bool:
     Returns:
         bool: True if user value existed, False otherwise
     """
+
     return bool(lx.eval(f'query scriptsysservice userValue.isDefined ? {name}'))
 
 
@@ -76,6 +79,7 @@ def def_new_user_value(name: str, val_type: str, val_life: str) -> None:
         val_type (str): user value type
         val_life (str): user value life
     """
+
     lx.eval(f'user.defNew {name} type:{val_type} life:{val_life}')
 
 
@@ -85,6 +89,7 @@ def delete_defined_user_value(name: str) -> None:
     Args:
         name (str): user value name
     """
+
     lx.eval(f'!user.defDelete {name}')
 
 
@@ -97,6 +102,7 @@ def parent_items_to(items: Iterable[modo.Item], parent: Optional[modo.Item], ind
         index (int, optional): parent index. Defaults to 0.
         inplace (bool, optional): parent in place. Defaults to True.
     """
+
     inplace_num = 1 if inplace else 0
     for item in items:
         if not parent:
@@ -113,6 +119,7 @@ def set_mesh_debug_info(mesh, info_str, debug_mode=False):
         info_str (str): tag string
         debug_mode (bool, optional): set tag if debug_mode enabled. Defaults to False.
     """
+
     if not mesh:
         return
     if debug_mode:
@@ -130,6 +137,7 @@ def get_mesh_debug_info(mesh):
     Returns:
         str: tag string
     """
+
     if not mesh:
         return None
 
@@ -144,6 +152,7 @@ def set_description_tag(item: modo.Item, text: str) -> None:
         item (Item): item for tag addition
         text (str): text for decription tag
     """
+
     item.select(replace=True)
     lx.eval('item.tagAdd DESC')
     lx.eval('item.tag string DESC "{}"'.format(text))
@@ -158,6 +167,7 @@ def get_description_tag(item: modo.Item) -> str:
     Returns:
         str: tag text
     """
+
     item.select(replace=True)
     description_tag = lx.eval('item.tag string DESC ?')
     if not description_tag:
@@ -227,8 +237,11 @@ def replace_file_ext(name='log', ext='.txt'):
 
 
 def itype_str(type_int: Union[int, None]) -> str:
-    """convert int modo item type to str type.
-    example: c.MESH_TYPE to 'mesh'"""
+    """
+    convert int modo item type to str type.
+    example: c.MESH_TYPE to 'mesh'
+    """
+
     if type_int is None:
         raise TypeError
 
@@ -243,8 +256,11 @@ def itype_str(type_int: Union[int, None]) -> str:
 
 
 def itype_int(type_str: Union[str, None]) -> int:
-    """convert str modo item type to int type.
-    example: 'mesh' to c.MESH_TYPE"""
+    """
+    convert str modo item type to int type.
+    example: 'mesh' to c.MESH_TYPE
+    """
+
     if type_str is None:
         raise TypeError
 
@@ -685,10 +701,33 @@ def set_selection_mode(select_type: str):
     Raises:
         ValueError: if select type is not in SELECT_TYPES dataclass
     """
+
     if select_type not in [field.value for field in SELECTION_MODE]:
         raise ValueError(f'Invalid select type: {select_type}')
 
     lx.eval(f'select.type {select_type}')
+
+
+def drop_selection(mode: str):
+    """ drop selection for specified mode
+
+    Args:
+        mode (str): select type to drop
+    Raises:        ValueError: if select type is not in SELECT_TYPES dataclass
+    """
+
+    VERTEX = SELECTION_MODE.VERTEX.value
+    EDGE = SELECTION_MODE.EDGE.value
+    POLYGON = SELECTION_MODE.POLYGON.value
+    ITEM = SELECTION_MODE.ITEM.value
+
+    if mode not in [field.value for field in SELECTION_MODE]:
+        raise ValueError(f'Invalid select type: {mode}')
+
+    if mode in [VERTEX, EDGE, POLYGON]:
+        lx.eval(f'select.drop {mode}')
+    if mode == ITEM:
+        modo.Scene().deselect()
 
 
 def get_instances(item: modo.Item) -> list[modo.Item]:
@@ -703,6 +742,7 @@ def get_instances(item: modo.Item) -> list[modo.Item]:
     Returns:
         list[modo.Item]: List of item instances.
     """
+
     instances = item.itemGraph('source').reverse()
     if not isinstance(instances, list):
         raise ValueError(f'Error getting instances for the <{item.name}> item')
@@ -721,6 +761,7 @@ def duplicate_item(item: modo.Item) -> modo.Item:
     Returns:
         modo.Item: Item copy without hierarchy.
     """
+
     copy = modo.Scene().duplicateItem(item)
     if not copy:
         raise TypeError('Item duplication error.')
@@ -737,6 +778,7 @@ def duplicate_item_with_hierarchy(item: modo.Item) -> modo.Item:
     Returns:
         modo.Item: Item copy including its hierarchy.
     """
+
     item.select(replace=True)
     lx.eval('item.duplicate instance:false all:true')
     newitem = modo.Scene().selected[0]
@@ -755,6 +797,7 @@ def make_instance(item: modo.Item) -> modo.Item:
     Returns:
         modo.Item: Item instance without hierarchy.
     """
+
     copy = modo.Scene().duplicateItem(item, instance=True)
     if not copy:
         raise TypeError('Item duplication error.')
@@ -771,6 +814,7 @@ def make_instance_with_hierarchy(item: modo.Item) -> modo.Item:
     Returns:
         modo.Item: Item instance including its hierarchy.
     """
+
     item.select(replace=True)
     lx.eval('item.duplicate instance:true all:true')
     newitem = modo.Scene().selected[0]
