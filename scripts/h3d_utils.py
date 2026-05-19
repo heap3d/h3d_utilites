@@ -10,6 +10,8 @@
 from typing import Union, Any, Iterable, Optional
 from enum import Enum, auto
 import subprocess
+import time
+import webbrowser
 
 import lx
 import modo
@@ -21,6 +23,10 @@ import modo.constants as c
 VERTEX_ZERO_NAME = 'vertex_ZERO'
 EMPTY_PTAG = 'Material'
 TMPROTLOC_NAME = 'tmplocal_rot_loc'
+
+USERVAL_ALARM_ENABLED = 'h3d_utilites_alarm_enabled'
+USERVAL_ALARM_PATH = 'h3d_utilites_alarm_path'
+USERVAL_ALARM_THRESHOLD = 'h3d_utilites_alarm_threshold'
 
 
 class SELECTION_MODE(Enum):
@@ -836,3 +842,30 @@ def select_if_exists(items: Iterable[modo.Item]):
             item.select()
         except (LookupError, AttributeError):
             pass
+
+
+def execution_time_alarm(func):
+    """ Decorator to measure execution time of a function and alarm if it exceeds a threshold.
+
+    Args:
+        func (function): Function to measure.
+    """
+
+    def wrapper(*args, **kwargs):
+        alarm_enabled = get_user_value(USERVAL_ALARM_ENABLED)
+        alarm_sound_path = get_user_value(USERVAL_ALARM_PATH)
+        alarm_threshold = get_user_value(USERVAL_ALARM_THRESHOLD)
+
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f'Execution time of {func.__name__}: {execution_time:.4f} seconds')
+
+        if execution_time > alarm_threshold:
+            if alarm_enabled:
+                webbrowser.open(alarm_sound_path)
+
+        return result
+
+    return wrapper
