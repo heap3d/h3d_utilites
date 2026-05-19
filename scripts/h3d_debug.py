@@ -8,6 +8,7 @@
 # h3d debug utilites
 
 import datetime
+import time
 import inspect
 import os.path
 from typing import Union, Iterable
@@ -323,3 +324,23 @@ except NameError:
     prints = h3dd.print_smart
     fn_in = h3dd.print_fn_in
     fn_out = h3dd.print_fn_out
+
+
+def execution_time(func):
+    """Decorator to measure execution time of a function.
+
+    Args:
+        func (function): Function to measure.
+
+    Returns:
+        function: Wrapped function with execution time measurement.
+    """
+
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        prints(f'Execution time of {func.__name__}: {end_time - start_time:.4f} seconds')
+        return result
+
+    return wrapper
