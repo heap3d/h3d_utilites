@@ -20,6 +20,9 @@ from modo.mathutils import math
 import modo.constants as c
 
 
+MeshComponent = Union[modo.MeshVertex, modo.MeshEdge, modo.MeshPolygon]
+
+
 VERTEX_ZERO_NAME = 'vertex_ZERO'
 EMPTY_PTAG = 'Material'
 TMPROTLOC_NAME = 'tmplocal_rot_loc'
@@ -730,6 +733,7 @@ def drop_selection(mode: str):
     if mode not in [field.value for field in SELECTION_MODE]:
         raise ValueError(f'Invalid select type: {mode}')
 
+    set_selection_mode(mode)
     if mode in [VERTEX, EDGE, POLYGON]:
         lx.eval(f'select.drop {mode}')
     if mode == ITEM:
@@ -860,12 +864,33 @@ def execution_time_alarm(func):
         result = func(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        print(f'Execution time of {func.__name__}: {execution_time:.4f} seconds')
+        print(f'Checking alarm time. Execution time of {func.__name__}: {execution_time:.4f} seconds')
 
         if execution_time > alarm_threshold:
             if alarm_enabled:
                 webbrowser.open(alarm_sound_path)
+                print('Alarm was triggered.')
 
         return result
 
     return wrapper
+
+
+def select_components(components: Iterable[MeshComponent]):
+    for component in components:
+        component.select()
+
+
+def select_polygons(polygons: Iterable[modo.MeshPolygon]):
+    components = [component for component in polygons if isinstance(component, modo.MeshPolygon)]
+    select_components(components)
+
+
+def select_edges(edges: Iterable[modo.MeshEdge]):
+    components = [component for component in edges if isinstance(component, modo.MeshEdge)]
+    select_components(components)
+
+
+def select_vertices(vertices: Iterable[modo.MeshVertex]):
+    components = [component for component in vertices if isinstance(component, modo.MeshVertex)]
+    select_components(components)
