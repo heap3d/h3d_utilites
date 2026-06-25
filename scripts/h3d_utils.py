@@ -850,62 +850,6 @@ def make_instance_with_hierarchy(item: modo.Item) -> modo.Item:
     return newitem
 
 
-def select_if_exists(items: Iterable[modo.Item]):
-    """ Selects items if they exist in the scene.
-    Args:
-        items (Iterable[modo.Item]): Items to select.
-    """
-
-    if not items:
-        return
-
-    modo.Scene().deselect()
-    for item in items:
-        try:
-            item.select()
-        except (LookupError, AttributeError):
-            pass
-
-
-def execution_time_alarm(func) -> Callable:
-    """ Decorator to measure execution time of a function and alarm if it exceeds a threshold.
-
-    Args:
-        func (function): Function to measure.
-    """
-
-    def wrapper(*args, **kwargs) -> Any:
-        alarm_enabled = get_user_value(USERVAL_ALARM_ENABLED)
-        alarm_sound_path = get_user_value(USERVAL_ALARM_PATH)
-        alarm_threshold = get_user_value(USERVAL_ALARM_THRESHOLD)
-
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-
-        # execution_time = end_time - start_time
-        # print(f'Checking alarm time. Execution time of {func.__name__}: {execution_time:.4f} seconds')
-        # if execution_time > alarm_threshold:
-        #     if alarm_enabled:
-        #         webbrowser.open(alarm_sound_path)
-        #         print('Alarm was triggered.')
-
-        if alarm_enabled:
-            alarm_if_triggered(start_time, end_time, alarm_threshold, alarm_sound_path, func.__name__)
-
-        return result
-
-    return wrapper
-
-
-def alarm_if_triggered(start: float, finish: float, threshold: float, path: str, fn_name='a command'):
-    execution_time = finish - start
-    print(f'Checking alarm time. Execution time of {fn_name}: {execution_time:.4f} seconds')
-    if execution_time > threshold:
-        webbrowser.open(path)
-        print('Alarm was triggered.')
-
-
 def select_components(components: Iterable[MeshComponent]) -> None:
     for component in components:
         component.select()
@@ -924,6 +868,63 @@ def select_edges(edges: Iterable[modo.MeshEdge]) -> None:
 def select_vertices(vertices: Iterable[modo.MeshVertex]):
     components = [component for component in vertices if isinstance(component, modo.MeshVertex)]
     select_components(components)
+
+
+def select_if_exists(items: Iterable[modo.Item]):
+    """ Selects items if they exist in the scene.
+    Args:
+        items (Iterable[modo.Item]): Items to select.
+    """
+
+    if not items:
+        return
+
+    modo.Scene().deselect()
+    for item in items:
+        try:
+            item.select()
+        except (LookupError, AttributeError):
+            pass
+
+
+def execution_time_alarm(fn_name='') -> Callable:
+    def execution_time_alarm(func) -> Callable:
+        """ Decorator to measure execution time of a function and alarm if it exceeds a threshold.
+
+        Args:
+            func (function): Function to measure.
+        """
+
+        def wrapper(*args, **kwargs) -> Any:
+            alarm_enabled = get_user_value(USERVAL_ALARM_ENABLED)
+            alarm_sound_path = get_user_value(USERVAL_ALARM_PATH)
+            alarm_threshold = get_user_value(USERVAL_ALARM_THRESHOLD)
+
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            end_time = time.time()
+
+            nonlocal fn_name
+
+            if not fn_name:
+                fn_name = func.__name__
+
+            if alarm_enabled:
+                alarm_if_triggered(start_time, end_time, alarm_threshold, alarm_sound_path, fn_name)
+
+            return result
+
+        return wrapper
+
+    return execution_time_alarm
+
+
+def alarm_if_triggered(start: float, finish: float, threshold: float, path: str, fn_name='a command'):
+    execution_time = finish - start
+    print(f'Checking alarm time. Execution time of {fn_name}: {execution_time:.4f} seconds')
+    if execution_time > threshold:
+        webbrowser.open(path)
+        print('Alarm was triggered.')
 
 
 class ExecutionTimerAlarm():
