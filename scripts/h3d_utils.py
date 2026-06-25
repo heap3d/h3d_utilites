@@ -7,7 +7,7 @@
 # EMAG
 # h3d utils
 
-from typing import Union, Any, Iterable, Optional
+from typing import Union, Any, Iterable, Optional, Callable
 from enum import Enum, auto
 import subprocess
 import time
@@ -102,7 +102,7 @@ def delete_defined_user_value(name: str) -> None:
     lx.eval(f'!user.defDelete {name}')
 
 
-def parent_items_to(items: Iterable[modo.Item], parent: Optional[modo.Item], index=0, inplace=True):
+def parent_items_to(items: Iterable[modo.Item], parent: Optional[modo.Item], index=0, inplace=True) -> None:
     """parent items to an parent item at specified index
 
     Args:
@@ -120,7 +120,7 @@ def parent_items_to(items: Iterable[modo.Item], parent: Optional[modo.Item], ind
             lx.eval(f'item.parent item:{{{item.id}}} parent:{{{parent.id}}} position:{index} inPlace:{inplace_num}')
 
 
-def set_mesh_debug_info(mesh, info_str, debug_mode=False):
+def set_mesh_debug_info(mesh: modo.Mesh, info_str: str, debug_mode=False) -> None:
     """saving info_str to mesh description tag
 
     Args:
@@ -137,14 +137,14 @@ def set_mesh_debug_info(mesh, info_str, debug_mode=False):
         lx.eval('item.tag string DESC "{}"'.format(info_str))
 
 
-def get_mesh_debug_info(mesh):
+def get_mesh_debug_info(mesh: modo.Mesh) -> Optional[str]:
     """read string from mesh description tag
 
     Args:
-        mesh (_type_): mesh to get tag string
+        mesh (modo.Mesh): mesh to get tag string
 
     Returns:
-        str: tag string
+        Optional[str]: tag string
     """
 
     if not mesh:
@@ -185,17 +185,24 @@ def get_description_tag(item: modo.Item) -> str:
     return description_tag
 
 
-def get_full_mesh_area(mesh):
+def get_full_mesh_area(mesh: modo.Mesh) -> Optional[float]:
     if not mesh:
         return None
     if mesh.type != 'mesh':
         return 0.0
 
-    full_area = sum([poly.area for poly in mesh.geometry.polygons])
+    geometry = mesh.geometry
+    if not geometry:
+        return 0.0
+    polygons = geometry.polygons
+    if not polygons:
+        return 0.0
+
+    full_area = sum([poly.area for poly in polygons])
     return full_area
 
 
-def merge_two_meshes(mesh1, mesh2):
+def merge_two_meshes(mesh1: modo.Mesh, mesh2: modo.Mesh) -> None:
     if not mesh1:
         return
     if not mesh2:
@@ -207,7 +214,7 @@ def merge_two_meshes(mesh1, mesh2):
     lx.eval('layer.mergeMeshes true')
 
 
-def get_mesh_bounding_box_size(mesh: modo.Mesh):
+def get_mesh_bounding_box_size(mesh: modo.Mesh) -> Vector3:
     if not mesh:
         return Vector3()
     if not mesh.geometry.polygons:
@@ -236,7 +243,7 @@ def get_source_of_instance(item: modo.Item) -> Union[None, modo.Item]:
     return item_source
 
 
-def replace_file_ext(name='log', ext='.txt'):
+def replace_file_ext(name='log', ext='.txt') -> str:
     try:
         basename = name.rsplit('.', 1)[0]
     except AttributeError:
@@ -245,7 +252,7 @@ def replace_file_ext(name='log', ext='.txt'):
     return '{}{}'.format(basename, ext)
 
 
-def itype_str(type_int: Union[int, None]) -> str:
+def itype_str(type_int: Optional[int]) -> str:
     """
     convert int modo item type to str type.
     example: c.MESH_TYPE to 'mesh'
@@ -264,7 +271,7 @@ def itype_str(type_int: Union[int, None]) -> str:
     return str_type
 
 
-def itype_int(type_str: Union[str, None]) -> int:
+def itype_int(type_str: Optional[str]) -> int:
     """
     convert str modo item type to int type.
     example: 'mesh' to c.MESH_TYPE
@@ -280,7 +287,7 @@ def itype_int(type_str: Union[str, None]) -> int:
     return int_type
 
 
-def item_move(item: modo.Item, amount: Vector3):
+def item_move(item: modo.Item, amount: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if amount is None:
@@ -291,7 +298,7 @@ def item_move(item: modo.Item, amount: Vector3):
     lx.eval(f'!transform.channel pos.Z ?+{amount.z} item:{{{item.id}}}')
 
 
-def item_rotate(item: modo.Item, radians: Vector3):
+def item_rotate(item: modo.Item, radians: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -308,7 +315,7 @@ class Axis(Enum):
     Z = auto()
 
 
-def item_rotate_local(item: modo.Item, radians: float, axis: Axis):
+def item_rotate_local(item: modo.Item, radians: float, axis: Axis) -> None:
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -335,7 +342,7 @@ def item_rotate_local(item: modo.Item, radians: float, axis: Axis):
         modo.Scene().removeItems(tmploc)
 
 
-def set_rotation_order(item: modo.Item, axis: Axis):
+def set_rotation_order(item: modo.Item, axis: Axis) -> None:
     command = {
         Axis.X: 'xyz',
         Axis.Y: 'yxz',
@@ -344,7 +351,7 @@ def set_rotation_order(item: modo.Item, axis: Axis):
     lx.eval(f'!transform.channel order {command[axis]} item:{{{item.id}}}')
 
 
-def item_scale(item: modo.Item, amount: Vector3):
+def item_scale(item: modo.Item, amount: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if amount is None:
@@ -355,7 +362,7 @@ def item_scale(item: modo.Item, amount: Vector3):
     lx.eval(f'!transform.channel scl.Z ?+{amount.z} item:{{{item.id}}}')
 
 
-def item_set_position(item: modo.Item, position: Vector3):
+def item_set_position(item: modo.Item, position: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if position is None:
@@ -370,7 +377,7 @@ def item_set_position(item: modo.Item, position: Vector3):
         print(f'Warning: Failed to set position to <{item.name}>')
 
 
-def item_set_rotation(item: modo.Item, radians: Vector3):
+def item_set_rotation(item: modo.Item, radians: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if radians is None:
@@ -390,7 +397,7 @@ def item_set_rotation(item: modo.Item, radians: Vector3):
         print(f'Warning: Failed to set rotation to <{item.name}>')
 
 
-def item_set_scale(item: modo.Item, scale: Vector3):
+def item_set_scale(item: modo.Item, scale: Vector3) -> None:
     if item is None:
         raise ValueError('No item provided')
     if scale is None:
@@ -452,16 +459,21 @@ def item_get_scale(item: modo.Item) -> Vector3:
     return transform
 
 
-def safe_type(item: modo.Item):
+def safe_type(item: modo.Item) -> str:
+    item_type = item.type
+    if item_type is None:
+        raise TypeError(f'Unknown item type for <{item}>')
+
     if item not in modo.Scene().groups:
-        return item.type
-    if item.type == 'assembly':
-        return item.type
+        return item_type
+
     if item.type == '':
         return 'group'
 
+    return item_type
 
-def remove_if_exist(item: modo.Item, children):
+
+def remove_if_exist(item: modo.Item, children: bool) -> bool:
     if not item:
         return False
     try:
@@ -473,7 +485,7 @@ def remove_if_exist(item: modo.Item, children):
     return True
 
 
-def is_material_ptyp(ptyp):
+def is_material_ptyp(ptyp: str) -> bool:
     if ptyp == 'Material':
         return True
     if ptyp == '':
@@ -482,27 +494,34 @@ def is_material_ptyp(ptyp):
     return False
 
 
-def get_ptag_type(mask_item):
-    ptyp = mask_item.channel('ptyp').get()
+def get_ptag_type(mask_item: modo.Item) -> str:
+    channel = mask_item.channel('ptag')
+    if not channel:
+        raise ValueError(f'No ptag channel found for <{mask_item.name}>')
+    ptyp = channel.get()
     if not ptyp:
         return EMPTY_PTAG
-    return ptyp
+
+    return str(ptyp)
 
 
-def get_ptag(mask_item):
-    ptag = mask_item.channel('ptag').get()
-    return ptag
+def get_ptag(mask_item: modo.Item) -> str:
+    channel = mask_item.channel('ptag')
+    if not channel:
+        raise ValueError(f'No ptag channel found for <{mask_item.name}>')
+    ptag = channel.get()
+
+    return str(ptag)
 
 
-def get_item_mask(mask_item):
+def get_item_mask(mask_item: modo.Item) -> str:
     mask_item.select(True)
     item_mask = lx.eval('mask.setMesh ?')
-    return item_mask
+
+    return str(item_mask)
 
 
-def get_directory(
-    title: Union[str, None], path: Union[str, None] = None
-) -> Union[str, None]:
+def get_directory(title: Optional[str], path: Optional[str] = None) -> Optional[str]:
     if not title:
         title = 'Choose Directory'
 
@@ -513,28 +532,28 @@ def is_preset_browser_opened() -> bool:
     return bool(lx.eval('layout.createOrClose PresetBrowser presetBrowserPalette ?'))
 
 
-def open_preset_browser():
+def open_preset_browser() -> None:
     lx.eval(
         'layout.createOrClose PresetBrowser presetBrowserPalette true Presets '
         'width:800 height:600 persistent:true style:palette'
     )
 
 
-def close_preset_browser():
+def close_preset_browser() -> None:
     lx.eval(
         'layout.createOrClose PresetBrowser presetBrowserPalette false Presets width:800 height:600 '
         'persistent:true style:palette'
     )
 
 
-def display_preset_browser(enable: bool):
+def display_preset_browser(enable: bool) -> None:
     if enable:
         open_preset_browser()
     else:
         close_preset_browser()
 
 
-def switch_preset_browser():
+def switch_preset_browser() -> None:
     display_preset_browser(not is_preset_browser_opened())
 
 
@@ -575,20 +594,20 @@ def get_parent_index(item: modo.Item) -> int:
     return 0
 
 
-def match_pos_rot(item: modo.Item, itemTo: modo.Item):
+def match_pos_rot(item: modo.Item, itemTo: modo.Item) -> None:
     lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def match_pos(item: modo.Item, itemTo: modo.Item):
+def match_pos(item: modo.Item, itemTo: modo.Item) -> None:
     lx.eval(f'item.match item pos average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def match_rot(item: modo.Item, itemTo: modo.Item):
+def match_rot(item: modo.Item, itemTo: modo.Item) -> None:
     lx.eval(f'item.match item rot average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
-def match_scl(item: modo.Item, itemTo: modo.Item):
+def match_scl(item: modo.Item, itemTo: modo.Item) -> None:
     lx.eval(f'item.match item scl average:false item:{{{item.id}}} itemTo:{{{itemTo.id}}}')
 
 
@@ -676,7 +695,7 @@ class TagSplit():
         return (self.text[:index], self.text[index+len(sep):])
 
 
-def reveal_in_explorer(path: str):
+def reveal_in_explorer(path: str) -> None:
     subprocess.Popen(f'explorer /select,"{path}"')
 
 
@@ -701,7 +720,7 @@ def get_selection_mode() -> str:
     raise ValueError('Unknown select type')
 
 
-def set_selection_mode(select_type: str):
+def set_selection_mode(select_type: str) -> None:
     """ set selection type for modo from SELECT_TYPES dataclass
 
     Args:
@@ -717,7 +736,7 @@ def set_selection_mode(select_type: str):
     lx.eval(f'select.type {select_type}')
 
 
-def drop_selection(mode: str):
+def drop_selection(mode: str) -> None:
     """ drop selection for specified mode
 
     Args:
@@ -848,14 +867,14 @@ def select_if_exists(items: Iterable[modo.Item]):
             pass
 
 
-def execution_time_alarm(func):
+def execution_time_alarm(func) -> Callable:
     """ Decorator to measure execution time of a function and alarm if it exceeds a threshold.
 
     Args:
         func (function): Function to measure.
     """
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         alarm_enabled = get_user_value(USERVAL_ALARM_ENABLED)
         alarm_sound_path = get_user_value(USERVAL_ALARM_PATH)
         alarm_threshold = get_user_value(USERVAL_ALARM_THRESHOLD)
@@ -863,30 +882,41 @@ def execution_time_alarm(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
-        execution_time = end_time - start_time
-        print(f'Checking alarm time. Execution time of {func.__name__}: {execution_time:.4f} seconds')
 
-        if execution_time > alarm_threshold:
-            if alarm_enabled:
-                webbrowser.open(alarm_sound_path)
-                print('Alarm was triggered.')
+        # execution_time = end_time - start_time
+        # print(f'Checking alarm time. Execution time of {func.__name__}: {execution_time:.4f} seconds')
+        # if execution_time > alarm_threshold:
+        #     if alarm_enabled:
+        #         webbrowser.open(alarm_sound_path)
+        #         print('Alarm was triggered.')
+
+        if alarm_enabled:
+            alarm_if_triggered(start_time, end_time, alarm_threshold, alarm_sound_path, func.__name__)
 
         return result
 
     return wrapper
 
 
-def select_components(components: Iterable[MeshComponent]):
+def alarm_if_triggered(start: float, finish: float, threshold: float, path: str, fn_name='a command'):
+    execution_time = finish - start
+    print(f'Checking alarm time. Execution time of {fn_name}: {execution_time:.4f} seconds')
+    if execution_time > threshold:
+        webbrowser.open(path)
+        print('Alarm was triggered.')
+
+
+def select_components(components: Iterable[MeshComponent]) -> None:
     for component in components:
         component.select()
 
 
-def select_polygons(polygons: Iterable[modo.MeshPolygon]):
+def select_polygons(polygons: Iterable[modo.MeshPolygon]) -> None:
     components = [component for component in polygons if isinstance(component, modo.MeshPolygon)]
     select_components(components)
 
 
-def select_edges(edges: Iterable[modo.MeshEdge]):
+def select_edges(edges: Iterable[modo.MeshEdge]) -> None:
     components = [component for component in edges if isinstance(component, modo.MeshEdge)]
     select_components(components)
 
@@ -894,3 +924,29 @@ def select_edges(edges: Iterable[modo.MeshEdge]):
 def select_vertices(vertices: Iterable[modo.MeshVertex]):
     components = [component for component in vertices if isinstance(component, modo.MeshVertex)]
     select_components(components)
+
+
+class ExecutionTimerAlarm():
+    FN_NAME_DEFAULT = 'a command'
+    def __init__(self, fn_name=FN_NAME_DEFAULT) -> None:
+        self.fn_name = fn_name
+        self.starttime: float = 0.0
+        self.endtime: float = 0.0
+
+        self.enabled = get_user_value(USERVAL_ALARM_ENABLED)
+        self.path = get_user_value(USERVAL_ALARM_PATH)
+        self.threshold = get_user_value(USERVAL_ALARM_THRESHOLD)
+
+
+
+        self.start(self.fn_name)
+
+    def start(self, fn_name=FN_NAME_DEFAULT):
+        self.starttime = time.time()
+        self.fn_name = fn_name
+
+    def finish(self):
+        self.endtime = time.time()
+
+        if self.enabled:
+            alarm_if_triggered(self.starttime, self.endtime, self.threshold, self.path, self.fn_name)

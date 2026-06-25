@@ -41,10 +41,10 @@ class H3dDebug:
         self.enable = state
         self.log_reset()
 
-    def print_debug(self, message, indent=0, forced=False):
+    def print_debug(self, message, indent=0, newline=False):
         if not self.enable:
             return
-        if message == '' and self.last_emptyline and not forced:
+        if message == '' and self.last_emptyline and not newline:
             return
         if message == '':
             self.last_emptyline = True
@@ -113,18 +113,18 @@ class H3dDebug:
         if isinstance(items, dict):
             for k, v in items.items():
                 if 'modo.item.' in str(type(k)):
-                    dict_key = f'<{k.name}>:<{safe_type(k)}>'
+                    dict_key = f'<{k.name}>:<{safe_type(k)}><{k}>'
                 else:
                     dict_key = f'<{k}>'
                 if 'modo.item.' in str(type(v)):
-                    dict_val = f'<{v.name}>:<{safe_type(v)}>'
+                    dict_val = f'<{v.name}>:<{safe_type(v)}><{v}>'
                 else:
                     dict_val = f'<{v}>'
                 self.print_debug(f'{dict_key} :: {dict_val}', indent=indent + 1)
         else:
             for k in items:
                 if 'modo.item.' in str(type(k)):
-                    self.print_debug(f'<{k.name}>:<{safe_type(k)}>', indent=indent + 1)
+                    self.print_debug(f'<{k.name}>:<{safe_type(k)}><{k}>', indent=indent + 1)
                 else:
                     self.print_debug(f'<{k}>', indent=indent + 1)
 
@@ -224,10 +224,20 @@ class H3dDebug:
 
     def print_smart(
             self,
-            variable: Union[None, int, float, Iterable, modo.Item, modo.Vector3],
+            variable: Union[
+                None,
+                int,
+                float,
+                Iterable,
+                modo.Item,
+                modo.Vector3,
+                modo.MeshPolygon,
+                modo.MeshEdge,
+                modo.MeshVertex,
+                ],
             indent=0,
-            emptyline=True,
-            forced=False,
+            items_emptyline=True,
+            newline=False,
             label=None,
             ):
         if not self.enable:
@@ -250,30 +260,34 @@ class H3dDebug:
         try:
             _ = [i for i in variable]  # type: ignore
         except TypeError:
-            self.print_debug(f'var<{var_name}>:{var_string}:<{variable}>:<{variable_type}>', indent)
+            if label:
+                message = f'{label}:var<{var_name}>:{var_string}:<{variable}>:<{variable_type}>'
+                self.print_debug(message, indent, newline)
+            else:
+                self.print_debug(f'var<{var_name}>:{var_string}:<{variable}>:<{variable_type}>', indent, newline)
         else:
             if not isinstance(variable, str):
                 if label:
-                    self.print_items(variable, f'{label}:', indent, emptyline)
+                    self.print_items(variable, f'{label}:', indent, items_emptyline)
                 else:
-                    self.print_items(variable, f'var<{var_name}>:', indent, emptyline)
+                    self.print_items(variable, f'var<{var_name}>:', indent, items_emptyline)
                 return
 
             if var_name is None:
                 if label:
-                    self.print_debug(f'{label}:<{variable}>', indent, forced)
+                    self.print_debug(f'{label}:<{variable}>', indent, newline)
                 else:
-                    self.print_debug(variable, indent, forced)
+                    self.print_debug(variable, indent, newline)
             elif not var_string:
                 if label:
-                    self.print_debug(f'{label}:<{variable}>', indent, forced)
+                    self.print_debug(f'{label}:<{variable}>', indent, newline)
                 else:
-                    self.print_debug(f'<{variable}>', indent, forced)
+                    self.print_debug(f'<{variable}>', indent, newline)
             else:
                 if label:
-                    self.print_debug(f'{label}:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
+                    self.print_debug(f'{label}:<{var_string}>:<{variable}>:<{variable_type}>', indent, newline)
                 else:
-                    self.print_debug(f'var<{var_name}>:<{var_string}>:<{variable}>:<{variable_type}>', indent, forced)
+                    self.print_debug(f'var<{var_name}>:<{var_string}>:<{variable}>:<{variable_type}>', indent, newline)
 
     def show_log_in_explorer(self):
         if not self.enable:
