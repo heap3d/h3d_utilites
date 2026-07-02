@@ -13,6 +13,7 @@ import inspect
 import os.path
 from typing import Union, Iterable
 import subprocess
+import codecs
 
 import modo
 
@@ -65,7 +66,7 @@ class H3dDebug:
         if not self.log_path:
             self.print_to_sys(message)
             return
-        with open(self.log_path, 'a') as f:
+        with open(self.log_path, 'a', encoding='utf-8') as f:
             f.write(message)
             f.write('\n')
 
